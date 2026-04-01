@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import CodeBlock from "@/components/CodeBlock";
 import Link from "next/link";
-import { ArrowRight, CheckCircle, Zap } from "lucide-react";
+import { ArrowRight, CheckCircle2, Zap, Terminal, Key, ShieldCheck, ChevronRight, Info, AlertTriangle } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
   title: "Getting Started",
@@ -10,147 +11,142 @@ export const metadata: Metadata = {
 
 export default function GettingStartedPage() {
   return (
-    <article>
-      {/* Header */}
-      <div style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", paddingBottom: "2rem", marginBottom: "2.5rem" }}>
-        <span style={{ display: "inline-block", padding: "0.25rem 0.75rem", borderRadius: "9999px", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", fontSize: "0.72rem", color: "#22c55e", marginBottom: "0.75rem", fontFamily: "var(--font-fira-code), monospace" }}>
-          Getting Started
-        </span>
-        <h1 id="installation" style={{ fontSize: "2.2rem", fontWeight: 800, letterSpacing: "-0.03em", color: "#f1f5f9", marginBottom: "0.75rem" }}>
-          Installation
+    <article className="space-y-12">
+      {/* Header Section */}
+      <header className="space-y-4 pb-8 border-b border-white/5">
+        <div className="flex items-center gap-2 px-3 py-1 bg-sage/10 border border-sage/20 rounded-full w-fit">
+          <Zap size={14} className="text-sage" />
+          <span className="text-[10px] font-bold text-sage uppercase tracking-widest">Getting Started</span>
+        </div>
+        <h1 className="text-4xl md:text-5xl font-bold font-outfit tracking-tight text-white">
+           Installation Guide
         </h1>
-        <p style={{ color: "#4b5563", lineHeight: 1.75, maxWidth: "560px", fontSize: "0.95rem" }}>
-          GitSage is a Python CLI tool. Install it from PyPI in seconds — no dependencies to manage, no configuration required to get started.
+        <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
+          GitSage is a lightweight Python CLI tool that integrates directly with your Git workflow. 
+          Install it in seconds and start generating intelligence for your repository.
         </p>
-      </div>
+      </header>
 
-      {/* Requirements */}
-      <section style={{ marginBottom: "2.5rem" }}>
-        <h2 id="requirements" style={{ fontSize: "1.3rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "1rem" }}>
-          Requirements
+      {/* Overview Block */}
+      <section className="space-y-4">
+        <h2 id="overview" className="text-xl font-bold font-outfit text-white flex items-center gap-2">
+           <Info size={20} className="text-sky-400" /> Overview
         </h2>
-        <div className="glass" style={{ padding: "1.25rem", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.04)" }}>
-          {[
-            "Python 3.10 or higher",
-            "Git 2.x installed and configured",
-            "A Gemini API key (or local Ollama instance for local mode)",
-          ].map((req) => (
-            <div key={req} style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.4rem 0", fontSize: "0.875rem", color: "#94a3b8" }}>
-              <CheckCircle size={14} color="#22c55e" />
-              {req}
+        <Card variant="glass">
+           <CardContent className="space-y-4 text-slate-400 leading-relaxed">
+              <p>
+                GitSage uses advanced Large Language Models (LLMs) to analyze your staged changes. 
+                It doesn't just describe code; it understands the <strong>intent</strong>, <strong>impact</strong>, and <strong>reach</strong> of your commits.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                {[
+                  "No complex dependencies",
+                  "Python 3.10+ compatible",
+                  "Git 2.x integration",
+                  "Blazing fast inference",
+                ].map((item) => (
+                  <div key={item} className="flex items-center gap-2 text-sm text-slate-300">
+                    <CheckCircle2 size={16} className="text-sage shrink-0" />
+                    {item}
+                  </div>
+                ))}
+              </div>
+           </CardContent>
+        </Card>
+      </section>
+
+      {/* Usage / Installation Block */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+           <h2 id="installation" className="text-xl font-bold font-outfit text-white flex items-center gap-2">
+              <Terminal size={20} className="text-sage" /> Installation
+           </h2>
+           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">v1.2.0 stable</span>
+        </div>
+        <div className="space-y-6">
+           <div className="space-y-2">
+              <p className="text-sm text-slate-400">Install globally using pip (ensure your Python environment is active):</p>
+              <CodeBlock code="pip install gitsage" language="bash" />
+           </div>
+           <div className="space-y-2">
+              <p className="text-sm text-slate-400">Or upgrade to the latest intelligence engine:</p>
+              <CodeBlock code="pip install --upgrade gitsage" language="bash" />
+           </div>
+        </div>
+      </section>
+
+      {/* API Configuration Block */}
+      <section className="space-y-4">
+        <h2 id="configuration" className="text-xl font-bold font-outfit text-white flex items-center gap-2">
+           <Key size={20} className="text-amber-400" /> API Configuration
+        </h2>
+        <p className="text-sm text-slate-400 leading-relaxed max-w-3xl">
+           GitSage uses Google Gemini by default for cloud-based inference. 
+           Acquire your free API key from 
+           <a href="https://aistudio.google.com" target="_blank" className="text-sage hover:underline mx-1">Google AI Studio</a> 
+           and configure your environment:
+        </p>
+        <Card variant="solid" className="border-amber-400/20">
+           <CardContent className="space-y-4">
+              <CodeBlock 
+                code={`# Configure via GitSage CLI (Recommended)\ngitsage config --provider gemini --key YOUR_GEMINI_KEY`} 
+                language="bash" 
+              />
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200/70 text-xs leading-relaxed">
+                 <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                 <p>
+                    <strong>Security Warning:</strong> Never share your API keys or commit them to public repositories. 
+                    GitSage stores keys locally in your secure user configuration directory.
+                 </p>
+              </div>
+           </CardContent>
+        </Card>
+      </section>
+
+      {/* Setup Examples Block */}
+      <section className="space-y-4">
+        <h2 id="examples" className="text-xl font-bold font-outfit text-white flex items-center gap-2">
+           <ShieldCheck size={20} className="text-sky-400" /> Verification & Quick Start
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <div className="space-y-3">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Stage and Analyze</p>
+              <CodeBlock 
+                code={`git add src/core.py\ngitsage`} 
+                language="bash" 
+              />
+           </div>
+           <div className="space-y-3">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Analyze and Commit</p>
+              <CodeBlock 
+                code={`gitsage -c`} 
+                language="bash" 
+              />
+           </div>
+        </div>
+      </section>
+
+      {/* Next Steps Footer */}
+      <footer className="pt-12 border-t border-white/5 grid grid-cols-1 md:grid-cols-2 gap-6">
+         <Link href="/docs/engine-report" className="group p-6 glass rounded-2xl border border-white/5 hover:border-sage/30 transition-all">
+            <div className="flex justify-between items-center">
+               <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Next Chapter</p>
+                  <p className="text-lg font-bold text-white group-hover:text-sage transition-colors">Engine Intelligence</p>
+               </div>
+               <ChevronRight size={24} className="text-slate-700 group-hover:text-sage transition-all translate-x-0 group-hover:translate-x-1" />
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Install */}
-      <section style={{ marginBottom: "2.5rem" }}>
-        <h2 id="pip-install" style={{ fontSize: "1.3rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "0.5rem" }}>
-          Install via pip
-        </h2>
-        <p style={{ color: "#4b5563", marginBottom: "1rem", fontSize: "0.875rem", lineHeight: 1.7 }}>
-          GitSage is available on PyPI. Install it globally or inside a virtualenv:
-        </p>
-        <CodeBlock code="pip install gitsage" language="bash" />
-        <p style={{ color: "#4b5563", marginTop: "0.75rem", fontSize: "0.875rem" }}>
-          To upgrade to the latest version:
-        </p>
-        <CodeBlock code="pip install --upgrade gitsage" language="bash" />
-      </section>
-
-      {/* API Key Setup */}
-      <section style={{ marginBottom: "2.5rem" }}>
-        <h2 id="api-key-setup" style={{ fontSize: "1.3rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "0.5rem" }}>
-          Configure your API key
-        </h2>
-        <p style={{ color: "#4b5563", marginBottom: "1rem", fontSize: "0.875rem", lineHeight: 1.7 }}>
-          GitSage uses Google Gemini by default. Get your free API key from{" "}
-          <a href="https://aistudio.google.com" target="_blank" rel="noopener" style={{ color: "#38bdf8" }}>
-            Google AI Studio
-          </a>{" "}
-          and set it as an environment variable:
-        </p>
-        <CodeBlock
-          code={`# Linux / macOS
-export GEMINI_API_KEY="your-api-key-here"
-
-# Windows PowerShell
-$env:GEMINI_API_KEY="your-api-key-here"
-
-# Or configure via GitSage directly
-gitsage config --provider gemini --key YOUR_API_KEY`}
-          language="bash"
-          filename="~/.bashrc"
-        />
-
-        <div
-          className="glass"
-          style={{ padding: "1rem 1.25rem", borderRadius: "10px", border: "1px solid rgba(56,189,248,0.15)", marginTop: "1.25rem", borderLeft: "3px solid #38bdf8" }}
-        >
-          <p style={{ fontSize: "0.82rem", color: "#94a3b8", lineHeight: 1.7, margin: 0 }}>
-            <span style={{ color: "#38bdf8", fontWeight: 600 }}>💡 No Key?</span>{" "}
-            Switch to local mode with Ollama — no API key required. See the{" "}
-            <Link href="/docs/providers" style={{ color: "#38bdf8" }}>AI Providers</Link> guide.
-          </p>
-        </div>
-      </section>
-
-      {/* Quick Start */}
-      <section style={{ marginBottom: "2.5rem" }}>
-        <h2 id="quick-start" style={{ fontSize: "1.3rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "0.5rem" }}>
-          Quick Start
-        </h2>
-        <p style={{ color: "#4b5563", marginBottom: "1rem", fontSize: "0.875rem", lineHeight: 1.7 }}>
-          Make some changes, stage them, and let GitSage generate the commit message:
-        </p>
-        <CodeBlock
-          code={`# Make your code changes, then:
-git add src/auth/middleware.py
-
-# Run GitSage analysis
-gitsage
-
-# Or: stage everything + commit in one shot
-gitsage -c`}
-          language="bash"
-        />
-      </section>
-
-      {/* Verify */}
-      <section style={{ marginBottom: "2.5rem" }}>
-        <h2 id="verify-install" style={{ fontSize: "1.3rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "0.5rem" }}>
-          Verify the installation
-        </h2>
-        <CodeBlock
-          code={`gitsage --version
-# GitSage v1.2.0`}
-          language="bash"
-        />
-      </section>
-
-      {/* Next Steps */}
-      <div
-        className="glass"
-        style={{ padding: "1.5rem", borderRadius: "14px", border: "1px solid rgba(34,197,94,0.12)", marginTop: "2rem" }}
-      >
-        <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "0.75rem" }}>Next Steps</h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-          {[
-            { href: "/docs/engine-report", label: "Learn about the Engine Report" },
-            { href: "/docs/configuration", label: "Configure your preferences" },
-            { href: "/docs/providers", label: "Set up local Ollama mode" },
-          ].map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#22c55e", textDecoration: "none", fontSize: "0.875rem", padding: "0.3rem 0" }}
-            >
-              <ArrowRight size={14} />
-              {link.label}
-            </Link>
-          ))}
-        </div>
-      </div>
+         </Link>
+         <Link href="/docs/configuration" className="group p-6 glass rounded-2xl border border-white/5 hover:border-sage/30 transition-all">
+            <div className="flex justify-between items-center">
+               <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Advanced Setup</p>
+                  <p className="text-lg font-bold text-white group-hover:text-sage transition-colors">Config Reference</p>
+               </div>
+               <ChevronRight size={24} className="text-slate-700 group-hover:text-sage transition-all translate-x-0 group-hover:translate-x-1" />
+            </div>
+         </Link>
+      </footer>
     </article>
   );
 }

@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit, Fira_Code } from "next/font/google";
+import { Toaster } from "react-hot-toast";
+import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 
-export const viewport: Viewport = {
+const viewport: Viewport = {
   themeColor: "#020617",
 };
 
@@ -47,13 +49,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${outfit.variable} ${firaCode.variable}`}
-    >
-      <body>
-        {children}
+    <html lang="en" className={`${outfit.variable} ${firaCode.variable}`}>
+      <body className="bg-[#020617] text-white selection:bg-sage/30">
+        <AuthProvider>
+          {children}
+          <Toaster 
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                background: "#030712",
+                color: "#f1f5f9",
+                border: "1px solid rgba(255,255,255,0.05)",
+                fontFamily: "var(--font-outfit), sans-serif",
+                borderRadius: "12px",
+                fontSize: "14px",
+              },
+              success: {
+                iconTheme: {
+                  primary: "#22c55e",
+                  secondary: "#030712",
+                },
+              },
+            }}
+          />
+        </AuthProvider>
       </body>
     </html>
   );
 }
+
+export { viewport };

@@ -2,147 +2,135 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Zap, Settings, Cpu, ChevronRight, Share2, Layers, Menu, X } from "lucide-react";
+import { 
+  Zap, 
+  Cpu, 
+  Settings, 
+  BookOpen, 
+  ChevronRight, 
+  Terminal, 
+  ShieldCheck, 
+  Layout, 
+  Sparkles,
+  Command,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface SidebarLink {
+  href: string;
+  label: string;
+  icon?: any;
+}
 
 interface SidebarSection {
   title: string;
-  icon: any;
-  color: string;
-  bg: string;
-  links: { href: string; label: string }[];
+  links: SidebarLink[];
 }
 
-const SIDEBAR_SECTIONS: SidebarSection[] = [
+const DOCS_SECTIONS: SidebarSection[] = [
   {
-    title: "Getting Started",
-    icon: Zap,
-    color: "text-sage",
-    bg: "bg-sage/10",
+    title: "Onboarding",
     links: [
-      { href: "/docs/getting-started", label: "Installation" },
-      { href: "/docs/quick-start", label: "Quick Start" },
+      { href: "/docs/getting-started", label: "Quick Start Guide", icon: Zap },
+      { href: "/docs/installation", label: "Installation", icon: Terminal },
+      { href: "/docs/configuration", label: "Configuration", icon: Settings },
     ],
   },
   {
-    title: "Engine Report",
-    icon: Cpu,
-    color: "text-sky-400",
-    bg: "bg-sky-400/10",
+    title: "Intelligence Engine",
     links: [
-      { href: "/docs/engine-report", label: "The Three Pillars" },
-      { href: "/docs/confidence-score", label: "Confidence Score" },
-    ],
-  },
-  {
-    title: "Configuration",
-    icon: Settings,
-    color: "text-purple-400",
-    bg: "bg-purple-400/10",
-    links: [
-      { href: "/docs/configuration", label: "Config Reference" },
-      { href: "/docs/providers", label: "AI Providers" },
+      { href: "/docs/engine-report", label: "The Three Pillars", icon: Cpu },
+      { href: "/docs/confidence-score", label: "Confidence Models", icon: ShieldCheck },
+      { href: "/docs/providers", label: "AI Providers", icon: Layout },
     ],
   },
   {
     title: "Guides",
-    icon: BookOpen,
-    color: "text-orange-400",
-    bg: "bg-orange-400/10",
     links: [
-      { href: "/docs/troubleshooting", label: "Troubleshooting" },
+      { href: "/docs/troubleshooting", label: "Troubleshooting", icon: BookOpen },
+      { href: "/docs/faq", label: "Global FAQ", icon: Sparkles },
     ],
   },
 ];
 
-export default function DocsSidebar() {
-  const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+interface DocsSidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-  // Close sidebar on route change for mobile
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
+export default function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
+  const pathname = usePathname();
 
   return (
     <>
-      {/* Mobile Toggle Button */}
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-sage shadow-2xl text-obsidian md:hidden flex items-center justify-center sage-glow transition-transform active:scale-95"
-      >
-        {isOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
-
-      {/* Overlay for mobile */}
+      {/* Mobile Backdrop Overlay */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsOpen(false)}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden"
+            onClick={onClose}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] lg:hidden"
           />
         )}
       </AnimatePresence>
 
-      <nav className={`
-        fixed inset-y-0 left-0 z-40 w-72 h-full bg-[#030712] border-r border-white/5 transition-transform duration-300 transform 
-        ${isOpen ? "translate-x-0" : "-translate-x-full"}
-        md:relative md:translate-x-0 md:bg-transparent md:border-none md:sticky md:top-24 md:max-h-[calc(100vh-120px)] md:overflow-y-auto md:pr-4 custom-scrollbar
-      `}>
-        {/* Version & Focus controls */}
-        <div className="flex items-center gap-2 mb-8 px-6 md:px-2 pt-10 md:pt-0">
-          <div className="flex-1 flex items-center justify-between px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-             <div className="flex items-center gap-2">
-               <Layers size={12} className="text-sage" />
-               v1.2.x
+      {/* Sidebar Container */}
+      <motion.aside
+        initial={false}
+        animate={{ x: isOpen ? 0 : "-100%" }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className={cn(
+          "fixed inset-y-0 left-0 w-80 h-full bg-[#030712]/95 backdrop-blur-xl border-r border-white/5 z-[101] p-6 pt-12 overflow-y-auto custom-scrollbar lg:relative lg:translate-x-0 lg:w-72 lg:bg-transparent lg:border-none lg:z-10 lg:pt-0 pb-20",
+          !isOpen && "lg:block" // Force block for large screens
+        )}
+      >
+        {/* Navigation Wrapper */}
+        <nav className="space-y-10 lg:sticky lg:top-24 max-h-[calc(100vh-120px)]">
+          {/* Header for Mobile (Optional) */}
+          <div className="flex lg:hidden items-center gap-3 mb-12 border-b border-white/5 pb-6">
+             <div className="w-8 h-8 rounded-lg bg-sage flex items-center justify-center shrink-0">
+               <Command size={18} className="text-obsidian" />
              </div>
-             <ChevronRight size={10} />
+             <span className="font-outfit font-bold text-lg tracking-tight gradient-sage">Docs Portal</span>
           </div>
-          <div className="p-1.5 rounded-xl bg-white/5 border border-white/5 text-slate-500 hover:text-sage transition-colors cursor-pointer">
-             <Share2 size={12} />
-          </div>
-        </div>
 
-        <div className="space-y-8 px-6 md:px-0 pb-20 md:pb-0">
-          {SIDEBAR_SECTIONS.map((section) => (
+          {/* Grouped Links */}
+          {DOCS_SECTIONS.map((section) => (
             <div key={section.title}>
-              <div className="flex items-center gap-2 md:px-3 mb-3">
-                <div className={`p-1 rounded-md ${section.bg}`}>
-                  <section.icon size={12} className={section.color} />
-                </div>
-                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500">{section.title}</span>
-              </div>
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4 mb-3">
+                {section.title}
+              </h4>
               <ul className="space-y-1">
                 {section.links.map((link) => {
                   const isActive = pathname === link.href;
                   return (
                     <li key={link.href}>
-                      <Link 
-                        href={link.href} 
-                        className={`
-                          group flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all duration-200
-                          ${isActive 
-                             ? "bg-sage/10 text-sage border border-sage/10" 
-                             : "text-slate-500 hover:bg-white/5 hover:text-slate-300 border border-transparent"}
-                        `}
+                      <Link
+                        href={link.href}
+                        onClick={() => onClose()}
+                        className={cn(
+                          "group relative flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300",
+                          isActive 
+                            ? "bg-sage/10 text-sage border border-sage/10" 
+                            : "text-slate-500 hover:bg-white/5 hover:text-white"
+                        )}
                       >
-                        <span className="relative">
-                          {link.label}
-                          {isActive && (
-                            <motion.div 
-                              layoutId="sidebar-active"
-                              className="absolute -left-3 top-1/2 -translate-y-1/2 w-1 h-3 bg-sage rounded-full"
-                            />
-                          )}
-                        </span>
-                        <ChevronRight 
-                          size={12} 
-                          className={`transition-all duration-200 ${isActive ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2 group-hover:opacity-40 group-hover:translate-x-0"}`} 
-                        />
+                         <div className="flex items-center gap-3 shrink-0">
+                            {link.icon && <link.icon size={16} className={cn("transition-colors", isActive ? "text-sage" : "text-slate-600 group-hover:text-slate-400")} />}
+                            <span className="whitespace-nowrap">{link.label}</span>
+                         </div>
+                         {isActive && (
+                           <motion.div 
+                             layoutId="active-sidebar-pill" 
+                             className="w-1.5 h-1.5 rounded-full bg-sage shadow-[0_0_10px_rgba(34,197,94,0.5)]" 
+                           />
+                         )}
+                         {!isActive && (
+                           <ChevronRight size={14} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all pointer-events-none" />
+                         )}
                       </Link>
                     </li>
                   );
@@ -150,8 +138,19 @@ export default function DocsSidebar() {
               </ul>
             </div>
           ))}
-        </div>
-      </nav>
+
+          {/* External Callout in Sidebar */}
+          <div className="pt-6 border-t border-white/5 mx-4">
+             <Link 
+               href="https://github.com/iamAgbaCoder/gitsage/issues" 
+               target="_blank"
+               className="flex items-center justify-center gap-3 p-3 rounded-xl bg-[#030712] border border-white/5 text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:border-sage/20 hover:text-sage transition-all"
+             >
+                <Sparkles size={12} className="text-sage" /> Report Global Issue
+             </Link>
+          </div>
+        </nav>
+      </motion.aside>
     </>
   );
 }

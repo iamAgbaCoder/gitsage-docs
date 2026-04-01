@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import CodeBlock from "@/components/CodeBlock";
 import Link from "next/link";
-import { ArrowLeft, AlertCircle, CheckCircle, Info, LifeBuoy } from "lucide-react";
+import { ArrowLeft, AlertCircle, CheckCircle2, Info, LifeBuoy, ChevronRight, Activity, Zap, ExternalLink } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
   title: "Troubleshooting | GitSage",
@@ -11,81 +12,88 @@ export const metadata: Metadata = {
 const ISSUES = [
   {
     id: "empty-diff",
-    title: "Empty Diff / No Staged Changes",
-    badge: { label: "Common", color: "text-sage", bg: "bg-sage/10", border: "border-sage/20" },
+    title: "Empty Diff Detection",
+    badge: "Common",
     symptom: "GitSage exits with: No staged changes found.",
-    cause: "You haven't staged any files before running GitSage.",
-    solution: `# Stage specific files\ngit add src/auth/middleware.py\n\n# Or stage all modified files\ngit add -A\n\n# Then run\ngitsage`,
+    cause: "The intelligence engine requires specific files to be staged before it can analyze your intent.",
+    solution: `# Stage specific files\ngit add src/auth/middleware.py\n\n# Or stage all modified files\ngit add -A\n\n# Then run analysis\ngitsage`,
   },
   {
     id: "api-timeout",
-    title: "API Timeout / Connection Error",
-    badge: { label: "Network", color: "text-sky-400", bg: "bg-sky-400/10", border: "border-sky-400/20" },
+    title: "Intelligence Latency",
+    badge: "Network",
     symptom: "ReadTimeout: Gemini API did not respond within 30 seconds.",
-    cause: "Network instability or Gemini service disruption. GitSage has built-in retry logic with graceful fallback.",
-    solution: `# GitSage auto-retries 3 times, then prompts:\n# "Gemini unavailable. Switch to local? (y/n)"\n\n# Force local mode for this commit:\ngitsage --provider local\n\n# Or increase timeout in config:\ngitsage config --timeout 60`,
+    cause: "Network instability or transient provider disruption. GitSage includes built-in retry logic but defaults to a 30s timeout.",
+    solution: `# Switch to localized privacy mode (Ollama)\ngitsage --provider local\n\n# Or increase global timeout threshold\ngitsage config --timeout 60`,
   },
   {
     id: "invalid-api-key",
-    title: "Invalid API Key (401 Error)",
-    badge: { label: "Auth", color: "text-amber-400", bg: "bg-amber-400/10", border: "border-amber-400/20" },
-    symptom: "Error: GEMINI_API_KEY is invalid or missing.",
-    cause: "The API key is not set, has expired, or is incorrectly formatted.",
-    solution: `# Verify your environment variable\necho $GEMINI_API_KEY\n\n# Reset the key\ngitsage config --provider gemini --key YOUR_NEW_KEY\n\n# Get a new key from:\n# https://aistudio.google.com`,
+    title: "Identity Verification Failure",
+    badge: "Auth",
+    symptom: "Error: GEMINI_API_KEY is invalid or missing status 401.",
+    cause: "The secret key provided is either malformed, expired, or has insufficient quota.",
+    solution: `# Verify your environment state\ngitsage config --provider gemini --key YOUR_KEY\n\n# Get a fresh key from:\n# https://aistudio.google.com`,
   }
 ];
 
 export default function TroubleshootingPage() {
   return (
-    <article className="max-w-4xl">
-      <header className="mb-12 pb-12 border-b border-white/5 pt-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-6 font-fira">
-           <LifeBuoy size={12} />
-           Troubleshooting
+    <article className="space-y-12 pb-20">
+      {/* Header Section */}
+      <header className="space-y-4 pb-8 border-b border-white/5">
+        <div className="flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full w-fit">
+          <LifeBuoy size={14} className="text-amber-500" />
+          <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">Global Support</span>
         </div>
-        <h1 className="text-4xl md:text-5xl font-outfit font-bold text-slate-50 tracking-tight mb-6">
-          Common Issues
+        <h1 className="text-4xl md:text-5xl font-bold font-outfit tracking-tight text-white">
+           Troubleshooting
         </h1>
-        <p className="text-slate-400 text-lg leading-relaxed max-w-2xl">
-          Quick solutions for the most frequent technical hurdles when using the GitSage intelligence engine.
+        <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
+           Solutions for common technical hurdles. If your issue persists, our intelligence team is always available via the GitHub repository.
         </p>
       </header>
 
+      {/* Main Issues Flow */}
       <div className="space-y-16">
         {ISSUES.map((issue) => (
-          <section key={issue.id} className="scroll-mt-32" id={issue.id}>
-            <div className="flex items-center gap-4 mb-6">
-               <h2 className="text-2xl font-bold text-slate-50 tracking-tight">{issue.title}</h2>
-               <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${issue.badge.color} ${issue.badge.bg} border ${issue.badge.border}`}>
-                  {issue.badge.label}
+          <section key={issue.id} className="scroll-mt-32 space-y-6" id={issue.id}>
+            <div className="flex items-center justify-between">
+               <h2 className="text-2xl font-bold font-outfit text-white tracking-tight">{issue.title}</h2>
+               <span className="px-2 py-0.5 rounded bg-white/5 border border-white/5 text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                  {issue.badge} Issue
                </span>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4 mb-6">
-               <div className="glass p-5 rounded-2xl border-l-4 border-l-red-500/50">
-                  <div className="flex items-center gap-2 mb-2 text-red-400 text-[10px] font-bold uppercase tracking-widest">
-                     <AlertCircle size={14} />
-                     Symptom
-                  </div>
-                  <p className="font-fira text-xs text-slate-400 leading-relaxed font-medium">
-                    {issue.symptom}
-                  </p>
-               </div>
-               <div className="glass p-5 rounded-2xl border-l-4 border-l-amber-500/50">
-                  <div className="flex items-center gap-2 mb-2 text-amber-400 text-[10px] font-bold uppercase tracking-widest">
-                     <Info size={14} />
-                     Root Cause
-                  </div>
-                  <p className="text-sm text-slate-400 leading-relaxed">
-                    {issue.cause}
-                  </p>
-               </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               {/* Symptom Card */}
+               <Card variant="solid" className="border-red-500/10 bg-red-500/[0.02]">
+                  <CardContent className="p-5 space-y-3">
+                     <div className="flex items-center gap-2 text-red-500 text-[10px] font-bold uppercase tracking-widest px-1">
+                        <AlertCircle size={14} /> Symptom Identified
+                     </div>
+                     <p className="font-fira text-xs text-slate-400 leading-relaxed font-medium bg-black/40 p-3 rounded-lg border border-white/5 shadow-inner italic">
+                       {issue.symptom}
+                     </p>
+                  </CardContent>
+               </Card>
+
+               {/* Cause Card */}
+               <Card variant="glass">
+                  <CardContent className="p-5 space-y-3">
+                     <div className="flex items-center gap-2 text-sky-400 text-[10px] font-bold uppercase tracking-widest px-1">
+                        <Activity size={14} /> Root Cause
+                     </div>
+                     <p className="text-sm text-slate-400 leading-relaxed font-outfit">
+                       {issue.cause}
+                     </p>
+                  </CardContent>
+               </Card>
             </div>
 
+            {/* Resolution Section */}
             <div className="space-y-3">
-               <div className="flex items-center gap-2 text-sage text-[10px] font-bold uppercase tracking-widest">
-                  <CheckCircle size={14} />
-                  Resolution
+               <div className="flex items-center gap-2 text-sage text-[10px] font-bold uppercase tracking-widest px-1">
+                  <CheckCircle2 size={14} /> Recommended Resolution
                </div>
                <CodeBlock code={issue.solution} language="bash" />
             </div>
@@ -93,24 +101,33 @@ export default function TroubleshootingPage() {
         ))}
       </div>
 
-      {/* Community Callout */}
-      <div className="mt-20 p-8 glass-strong rounded-3xl border border-sage/20 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-sage/10 blur-3xl -mr-16 -mt-16" />
-        <p className="relative z-10 text-slate-400 leading-relaxed mb-0">
-          Still stuck? Join our community or open a technical report on 
-          <a href="https://github.com" className="text-sky-400 hover:text-sky-300 ml-1 font-medium underline underline-offset-4 transition-colors">
-            GitHub Issues
-          </a>
-          . Please include your OS details and gitsage --version output.
-        </p>
-      </div>
+      {/* Footer Support Callout */}
+      <footer className="mt-20 pt-16">
+         <Card variant="glow" className="p-8 md:p-12 text-center space-y-6 overflow-hidden">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-sage/10 blur-[60px] rounded-full -z-10" />
+            <div className="space-y-4">
+               <h3 className="text-2xl font-bold font-outfit text-white">Still encountering anomalies?</h3>
+               <p className="text-slate-400 max-w-xl mx-auto leading-relaxed">
+                  Join our developer community to report bugs, request features, or get direct support from the GitSage engineering team.
+               </p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+               <Link href="https://github.com" target="_blank" className="btn-sage group">
+                  <ExternalLink size={16} /> Open GitHub Issue
+               </Link>
+               <Link href="/docs" className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest hover:text-sage transition-all underline underline-offset-4 decoration-white/10 hover:decoration-sage">
+                  <Zap size={14} /> Core Node Documentation
+               </Link>
+            </div>
+         </Card>
 
-      <div className="mt-12 flex">
-        <Link href="/docs" className="flex items-center gap-2 text-slate-500 hover:text-sage transition-colors text-sm font-medium">
-          <ArrowLeft size={16} />
-          Back to Documentation
-        </Link>
-      </div>
+         <div className="mt-12 flex justify-between items-center text-[10px] font-bold text-slate-700 uppercase tracking-widest">
+            <Link href="/docs" className="flex items-center gap-2 hover:text-sage transition-all">
+               <ArrowLeft size={12} /> Return to Intelligence Node
+            </Link>
+            <span>v1.2.x System Protocol</span>
+         </div>
+      </footer>
     </article>
   );
 }

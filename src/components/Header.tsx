@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, GitBranch, Search, Zap, Github } from "lucide-react";
+import { Menu, X, GitBranch, Search, Zap, Github, LayoutDashboard, User } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/docs", label: "Docs" },
   { href: "/docs/getting-started", label: "Guide" },
-  { href: "/docs/configuration", label: "Config" },
 ];
 
 export default function Header() {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -27,14 +29,12 @@ export default function Header() {
       <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className={`
-          pointer-events-auto
-          relative flex items-center justify-between gap-8 px-6 py-2.5
-          rounded-2xl border transition-all duration-500
-          ${scrolled 
+        className={cn(
+          "pointer-events-auto relative flex items-center justify-between gap-8 px-6 py-2.5 rounded-2xl border transition-all duration-500",
+          scrolled 
             ? "glass-strong w-full max-w-4xl shadow-[0_20px_50px_rgba(0,0,0,0.3)]" 
-            : "glass w-full max-w-5xl border-white/5"}
-        `}
+            : "glass w-full max-w-5xl border-white/5"
+        )}
       >
         {/* Dynamic Island Highlight */}
         <div className="absolute inset-0 bg-gradient-to-r from-sage/5 via-sky-500/5 to-sage/5 rounded-2xl pointer-events-none" />
@@ -47,7 +47,7 @@ export default function Header() {
             </div>
             <div className="absolute -inset-1 bg-sage/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
-          <span className="font-outfit font-bold text-lg tracking-tight gradient-sage">
+          <span className="font-outfit font-bold text-lg tracking-tight text-white group-hover:text-sage transition-colors">
             GitSage
           </span>
         </Link>
@@ -63,6 +63,14 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
+          {user && (
+            <Link
+              href="/dashboard"
+              className="px-4 py-1.5 rounded-full text-sm font-medium text-sky-400 hover:text-sky-300 hover:bg-sky-400/5 transition-all duration-300 flex items-center gap-2"
+            >
+              <LayoutDashboard size={14} /> Dashboard
+            </Link>
+          )}
         </nav>
 
         {/* Actions */}
@@ -72,13 +80,24 @@ export default function Header() {
             <span className="text-xs font-fira">⌘K</span>
           </div>
 
-          <Link
-            href="https://github.com"
-            target="_blank"
-            className="p-2 rounded-xl bg-white/5 border border-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
-          >
-            <Github size={18} />
-          </Link>
+          {!user ? (
+            <Link
+              href="/login"
+              className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-xl bg-white/5 border border-white/5 text-xs font-bold text-slate-400 hover:text-white transition-all"
+            >
+              Connect Key
+            </Link>
+          ) : (
+            <Link
+              href="/dashboard"
+              className="hidden sm:flex items-center gap-2 p-1.5 rounded-full bg-sage/10 border border-sage/20 text-sage transition-all"
+              title="Identity: Active"
+            >
+               <div className="w-6 h-6 rounded-full bg-sage flex items-center justify-center">
+                  <User size={14} className="text-obsidian" />
+               </div>
+            </Link>
+          )}
 
           <Link
             href="/docs/getting-started"
@@ -104,7 +123,7 @@ export default function Header() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="absolute top-[calc(100%+10px)] inset-x-0 glass rounded-2xl overflow-hidden border border-white/10 md:hidden"
+              className="absolute top-[calc(100%+10px)] inset-x-0 glass rounded-2xl overflow-hidden border border-white/10 md:hidden pb-4"
             >
               <div className="p-4 flex flex-col gap-2">
                 {NAV_LINKS.map((link) => (
@@ -117,6 +136,24 @@ export default function Header() {
                     {link.label}
                   </Link>
                 ))}
+                {user && (
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setOpen(false)}
+                    className="px-4 py-3 rounded-xl text-lg text-sky-400 hover:bg-sky-400/10 transition-all flex items-center gap-3"
+                  >
+                    <LayoutDashboard size={20} /> Dashboard Portal
+                  </Link>
+                )}
+                {!user && (
+                   <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="mt-4 px-4 py-4 rounded-xl text-center bg-sage text-obsidian font-bold text-lg"
+                  >
+                    Connect Key
+                  </Link>
+                )}
               </div>
             </motion.div>
           )}

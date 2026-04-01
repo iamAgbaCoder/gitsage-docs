@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface Heading {
   id: string;
@@ -8,59 +9,79 @@ interface Heading {
   level: number;
 }
 
-interface ScrollSpyTOCProps {
-  headings: Heading[];
-}
-
-export default function ScrollSpyTOC({ headings }: ScrollSpyTOCProps) {
+export default function ScrollSpyTOC() {
+  const [headings, setHeadings] = useState<Heading[]>([]);
   const [activeId, setActiveId] = useState<string>("");
-  const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    const ids = headings.map((h) => h.id);
-    observerRef.current = new IntersectionObserver(
+    // Automatically find all headings in the main documentation area
+    const mainContent = document.querySelector("main");
+    if (!mainContent) return;
+
+    const elements = Array.from(mainContent.querySelectorAll("h2, h3"));
+    const headingData = elements.map((el) => ({
+      id: el.id,
+      text: el.textContent || "",
+      level: parseInt(el.tagName.substring(1)),
+    })).filter(h => h.id); // Only include headings with IDs
+
+    setHeadings(headingData);
+
+    const observer = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setActiveId(entry.target.id);
-            break;
           }
-        }
+        });
       },
-      { rootMargin: "-10% 0px -80% 0px", threshold: 0 }
+      { rootMargin: "-80px 0px -80% 0px", threshold: 0.1 }
     );
 
-    ids.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observerRef.current?.observe(el);
+    elements.forEach((el) => {
+      if (el.id) observer.observe(el);
     });
 
-    return () => observerRef.current?.disconnect();
-  }, [headings]);
+    return () => observer.disconnect();
+  }, []);
 
-  if (!headings.length) return null;
+  if (headings.length === 0) return null;
 
   return (
-    <nav style={{ position: "sticky", top: "80px" }} aria-label="Table of contents">
-      <p style={{ fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "#22c55e", marginBottom: "0.75rem", fontWeight: 600, paddingLeft: "0.75rem" }}>
+    <nav className="space-y-4" aria-label="Table of contents">
+      <p className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
         On this page
       </p>
-      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-        {headings.map((h) => (
-          <li key={h.id}>
-            <a
-              href={`#${h.id}`}
-              className={`toc-link ${activeId === h.id ? "active" : ""}`}
-              style={{ paddingLeft: h.level === 3 ? "1.5rem" : "0.75rem" }}
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById(h.id)?.scrollIntoView({ behavior: "smooth" });
-              }}
-            >
-              {h.text}
-            </a>
-          </li>
-        ))}
+      <ul className="space-y-1">
+        {headings.map((h) => {
+          const isActive = activeId === h.id;
+          return (
+            <li key={h.id}>
+              <a
+                href={`#${h.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const target = document.getElementById(h.id);
+                  if (target) {
+                    window.scrollTo({
+                      top: target.offsetTop - 120,
+                      behavior: "smooth"
+                    });
+                  }
+                }}
+                className={cn(
+                  "group block px-4 py-1.5 text-xs font-medium transition-all duration-300 border-l-2",
+                  isActive
+                    ? "text-sage border-sage/60 bg-sage/5"
+                    : "text-slate-500 border-transparent hover:text-slate-300 hover:border-white/10 hover:bg-white/[0.02]"
+                )}
+                style={{ paddingLeft: `${(h.level - 2) * 1 + 1}rem` }}
+              >
+                {h.text}
+              </a>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );
