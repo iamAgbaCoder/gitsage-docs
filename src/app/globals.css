@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 142.1 76.2% 36.3%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 142.1 70.6% 45.3%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-[#020617] text-foreground font-outfit antialiased selection:bg-sage/30 selection:text-sage-50;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+/* ─── GRAIN TEXTURE ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* ─── MESH GRADIENT GLOW ─── */
+.mesh-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(34, 197, 94, 0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 70% at 80% 80%, rgba(14, 165, 233, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(49, 81, 30, 0.04) 0%, transparent 70%);
+}
+
+/* ─── GLASS MORPHISM ─── */
+.glass {
+  @apply bg-obsidian/60 backdrop-blur-2xl border border-white/5;
+}
+
+.glass-strong {
+  @apply bg-obsidian/80 backdrop-blur-3xl border border-sage/10;
+}
+
+/* ─── TACTICAL GRID ─── */
+.tactical-grid {
+  position: relative;
+}
+.tactical-grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(34, 197, 94, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 197, 94, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  border-radius: inherit;
+}
+.tactical-grid:hover::after {
+  opacity: 1;
+}
+
+/* ─── GRADIENT TEXT ─── */
+.gradient-sage {
+  @apply bg-clip-text text-transparent bg-gradient-to-br from-green-400 via-sky-400 to-emerald-300;
+}
+
+.gradient-cyber {
+  @apply bg-clip-text text-transparent bg-gradient-to-br from-sky-400 to-green-400;
+}
+
+/* ─── SAGE GLOW ─── */
+.sage-glow {
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.15), 0 0 60px rgba(34, 197, 94, 0.06);
+}
+
+.cyber-glow {
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.15), 0 0 60px rgba(56, 189, 248, 0.06);
+}
+
+/* ─── CUSTOM COMPONENTS ─── */
+.btn-sage {
+  @apply inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-br from-green-500 to-green-700 text-obsidian font-outfit font-semibold text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(34,197,94,0.35)] relative overflow-hidden;
+}
+
+.btn-ghost {
+  @apply inline-flex items-center gap-2 px-7 py-3 rounded-full bg-white/5 text-slate-400 font-outfit font-semibold text-sm border border-white/10 transition-all duration-300 hover:bg-sage/10 hover:border-sage/20 hover:text-sage hover:-translate-y-0.5;
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { @apply bg-obsidian; }
+::-webkit-scrollbar-thumb { @apply bg-sage/25 rounded-full hover:bg-sage/45; }
