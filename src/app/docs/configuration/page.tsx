@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import CodeBlock from "@/components/CodeBlock";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Settings2, ShieldAlert } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
-  title: "Configuration Reference",
+  title: "Configuration Reference | GitSage",
   description: "Full reference for ~/.git-sage.json configuration options.",
 };
 
@@ -12,16 +13,16 @@ const CONFIG_PARAMS = [
   {
     key: "ai_provider",
     type: "string",
-    default: '"gemini"',
-    values: '"gemini" | "local"',
-    desc: 'The AI provider to use. "gemini" uses Google Gemini API; "local" routes to Ollama.',
+    default: '"gitsage"',
+    values: '"gitsage" | "local"',
+    desc: 'The intelligence engine to use. "gitsage" uses the GitSage API Cloud; "local" routes to Ollama.',
   },
   {
     key: "model",
     type: "string",
-    default: '"gemini-1.5-flash"',
+    default: '"gitsage-fast"',
     values: "Any valid model ID",
-    desc: 'The specific model to use. For local: "mistral", "llama3", "codellama", etc.',
+    desc: 'The specific model. For local: "mistral", "llama3", "codellama", etc.',
   },
   {
     key: "auto_commit",
@@ -55,37 +56,33 @@ const CONFIG_PARAMS = [
 
 export default function ConfigurationPage() {
   return (
-    <article>
-      <div style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", paddingBottom: "2rem", marginBottom: "2.5rem" }}>
-        <span style={{ display: "inline-block", padding: "0.25rem 0.75rem", borderRadius: "9999px", background: "rgba(167,139,250,0.08)", border: "1px solid rgba(167,139,250,0.2)", fontSize: "0.72rem", color: "#a78bfa", marginBottom: "0.75rem", fontFamily: "var(--font-fira-code), monospace" }}>
-          Configuration
-        </span>
-        <h1 id="configuration" style={{ fontSize: "2.2rem", fontWeight: 800, letterSpacing: "-0.03em", color: "#f1f5f9", marginBottom: "0.75rem" }}>
+    <article className="max-w-4xl mx-auto space-y-12 pb-20">
+      <header className="space-y-6 border-b border-white/5 pb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-fira tracking-tight">
+          <Settings2 size={14} /> Configuration
+        </div>
+        <h1 id="configuration" className="text-4xl md:text-5xl font-extrabold font-outfit text-white tracking-tight">
           Config Reference
         </h1>
-        <p style={{ color: "#4b5563", lineHeight: 1.75, maxWidth: "560px", fontSize: "0.95rem" }}>
+        <p className="text-lg text-slate-400 leading-relaxed max-w-2xl">
           GitSage reads configuration from{" "}
-          <code style={{ fontFamily: "var(--font-fira-code), monospace", background: "rgba(167,139,250,0.08)", padding: "0.15rem 0.5rem", borderRadius: "4px", color: "#a78bfa", fontSize: "0.82rem" }}>
-            ~/.git-sage.json
-          </code>
+          <code className="bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded font-fira text-sm">~/.git-sage.json</code>
           . This file is created automatically the first time you run{" "}
-          <code style={{ fontFamily: "var(--font-fira-code), monospace", background: "rgba(34,197,94,0.08)", padding: "0.15rem 0.5rem", borderRadius: "4px", color: "#22c55e", fontSize: "0.82rem" }}>
-            gitsage config
-          </code>.
+          <code className="bg-sage/10 text-sage px-2 py-0.5 rounded font-fira text-sm">gitsage config</code>.
         </p>
-      </div>
+      </header>
 
       {/* Full config example */}
-      <section style={{ marginBottom: "2.5rem" }}>
-        <h2 id="full-config" style={{ fontSize: "1.3rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "0.75rem" }}>
+      <section className="space-y-6">
+        <h2 id="full-config" className="text-2xl font-bold font-outfit text-white">
           Full Configuration File
         </h2>
         <CodeBlock
           filename="~/.git-sage.json"
           language="json"
           code={`{
-  "ai_provider": "gemini",
-  "model": "gemini-1.5-flash",
+  "ai_provider": "gitsage",
+  "model": "gitsage-fast",
   "auto_commit": false,
   "max_length": 72,
   "style": "conventional",
@@ -95,110 +92,95 @@ export default function ConfigurationPage() {
       </section>
 
       {/* Parameter table */}
-      <section style={{ marginBottom: "2.5rem" }}>
-        <h2 id="parameters" style={{ fontSize: "1.3rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "1rem" }}>
+      <section className="space-y-6">
+        <h2 id="parameters" className="text-2xl font-bold font-outfit text-white">
           Parameters
         </h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <div className="space-y-4">
           {CONFIG_PARAMS.map((param) => (
-            <div
-              key={param.key}
-              className="glass"
-              style={{ padding: "1.25rem", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.04)" }}
-            >
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "0.5rem", flexWrap: "wrap", gap: "0.5rem" }}>
-                <code style={{ fontFamily: "var(--font-fira-code), monospace", fontSize: "0.85rem", color: "#22c55e", fontWeight: 600 }}>
-                  {param.key}
-                </code>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <span style={{ padding: "0.15rem 0.5rem", borderRadius: "4px", background: "rgba(56,189,248,0.08)", color: "#38bdf8", fontSize: "0.7rem", fontFamily: "var(--font-fira-code), monospace" }}>
-                    {param.type}
-                  </span>
-                  <span style={{ padding: "0.15rem 0.5rem", borderRadius: "4px", background: "rgba(167,139,250,0.08)", color: "#a78bfa", fontSize: "0.7rem", fontFamily: "var(--font-fira-code), monospace" }}>
-                    default: {param.default}
-                  </span>
+            <Card key={param.key} variant="glass">
+              <CardContent className="p-5">
+                <div className="flex flex-wrap items-start justify-between gap-4 mb-3">
+                  <code className="font-fira text-sage font-bold text-sm">
+                    {param.key}
+                  </code>
+                  <div className="flex gap-2">
+                    <span className="px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 text-xs font-fira">
+                      {param.type}
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 text-xs font-fira">
+                      default: {param.default}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <p style={{ color: "#4b5563", fontSize: "0.82rem", lineHeight: 1.65, margin: 0, marginBottom: "0.4rem" }}>
-                {param.desc}
-              </p>
-              <p style={{ color: "#374151", fontSize: "0.75rem", fontFamily: "var(--font-fira-code), monospace", margin: 0 }}>
-                Values: {param.values}
-              </p>
-            </div>
+                <p className="text-sm text-slate-400 leading-relaxed mb-2">
+                  {param.desc}
+                </p>
+                <p className="text-xs text-slate-600 font-fira">
+                  Values: {param.values}
+                </p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </section>
 
       {/* CLI config commands */}
-      <section style={{ marginBottom: "2.5rem" }}>
-        <h2 id="cli-config" style={{ fontSize: "1.3rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "0.75rem" }}>
+      <section className="space-y-6">
+        <h2 id="cli-config" className="text-2xl font-bold font-outfit text-white">
           Setting Config via CLI
         </h2>
-        <p style={{ color: "#4b5563", lineHeight: 1.75, fontSize: "0.875rem", marginBottom: "1.25rem" }}>
+        <p className="text-slate-400 leading-relaxed text-sm">
           You can update configuration directly from the terminal without editing the JSON file:
         </p>
         <CodeBlock
-          code={`# Set Gemini as provider with your API key
-gitsage config --provider gemini --key YOUR_GEMINI_KEY
-
-# Switch to local Ollama mode
-gitsage config --provider local
-
-# Enable auto-commit for high-confidence suggestions
-gitsage config --auto-commit true
-
-# Change max commit message length
-gitsage config --max-length 80
-
-# View current config
-gitsage config`}
+          code={`# Set GitSage Cloud as provider with your API key\ngitsage config --provider gitsage --key YOUR_GLOBAL_KEY\n\n# Switch to local Ollama mode\ngitsage config --provider local\n\n# Enable auto-commit for high-confidence suggestions\ngitsage config --auto-commit true\n\n# Change max commit message length\ngitsage config --max-length 80\n\n# View current config\ngitsage config`}
           language="bash"
         />
       </section>
 
-      {/* GEMINI_API_KEY env */}
-      <section style={{ marginBottom: "2.5rem" }}>
-        <h2 id="gemini-setup" style={{ fontSize: "1.3rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "0.75rem" }}>
-          Gemini API Key Setup
+      {/* Environment Setup */}
+      <section className="space-y-6">
+        <h2 id="env-setup" className="text-2xl font-bold font-outfit text-white">
+          API Key Setup
         </h2>
-        <p style={{ color: "#4b5563", lineHeight: 1.75, fontSize: "0.875rem", marginBottom: "1.25rem" }}>
-          Get your free API key from{" "}
-          <a href="https://aistudio.google.com" target="_blank" rel="noopener" style={{ color: "#38bdf8" }}>
-            Google AI Studio
-          </a>
+        <p className="text-slate-400 leading-relaxed text-sm">
+          Get your production API key from the{" "}
+          <Link href="/dashboard" className="text-sky-400 hover:underline">
+            GitSage Portal
+          </Link>
           . Set it as an environment variable for security:
         </p>
         <CodeBlock
           filename="~/.bashrc or ~/.zshrc"
           language="bash"
-          code={`export GEMINI_API_KEY="AIza...your-key-here"`}
+          code={`export GITSAGE_API_KEY="gs_prod...your-key-here"`}
         />
-        <div className="glass" style={{ padding: "1rem 1.25rem", borderRadius: "10px", border: "1px solid rgba(251,191,36,0.15)", marginTop: "1.25rem", borderLeft: "3px solid #fbbf24" }}>
-          <p style={{ fontSize: "0.82rem", color: "#94a3b8", lineHeight: 1.7, margin: 0 }}>
-            <span style={{ color: "#fbbf24", fontWeight: 600 }}>⚠️ Security:</span>{" "}
+        <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 border-l-4 border-l-amber-500 flex items-start gap-3 mt-4">
+          <ShieldAlert size={18} className="text-amber-500 shrink-0 mt-0.5" />
+          <p className="text-sm text-slate-400">
+            <strong className="text-amber-500">Security:</strong>{" "}
             Never commit your API key to version control. GitSage stores it encrypted in{" "}
-            <code style={{ fontFamily: "var(--font-fira-code), monospace", color: "#a78bfa", fontSize: "0.78rem" }}>~/.git-sage.json</code>,
+            <code className="text-purple-400 font-fira text-xs bg-purple-500/10 px-1 py-0.5 rounded">~/.git-sage.json</code>,
             which is outside your repo.
           </p>
         </div>
       </section>
 
-      {/* Next */}
-      <div className="glass" style={{ padding: "1.5rem", borderRadius: "14px", border: "1px solid rgba(34,197,94,0.12)", marginTop: "2rem" }}>
-        <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "0.75rem" }}>Next Steps</h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+      <Card variant="glass" className="p-6">
+        <h3 className="text-lg font-bold font-outfit text-white mb-4">Next Steps</h3>
+        <div className="flex flex-col gap-3">
           {[
             { href: "/docs/providers", label: "Set up local Ollama model" },
             { href: "/docs/troubleshooting", label: "Troubleshooting common issues" },
           ].map((link) => (
-            <Link key={link.href} href={link.href} style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#22c55e", textDecoration: "none", fontSize: "0.875rem" }}>
-              <ArrowRight size={14} />
+            <Link key={link.href} href={link.href} className="inline-flex items-center gap-2 text-sage text-sm font-medium hover:text-sage/80 transition-colors">
+              <ArrowRight size={16} />
               {link.label}
             </Link>
           ))}
         </div>
-      </div>
+      </Card>
     </article>
   );
 }

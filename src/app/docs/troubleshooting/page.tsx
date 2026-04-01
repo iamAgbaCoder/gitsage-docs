@@ -22,7 +22,7 @@ const ISSUES = [
     id: "api-timeout",
     title: "Intelligence Latency",
     badge: "Network",
-    symptom: "ReadTimeout: Gemini API did not respond within 30 seconds.",
+    symptom: "ReadTimeout: GitSage API did not respond within 30 seconds.",
     cause: "Network instability or transient provider disruption. GitSage includes built-in retry logic but defaults to a 30s timeout.",
     solution: `# Switch to localized privacy mode (Ollama)\ngitsage --provider local\n\n# Or increase global timeout threshold\ngitsage config --timeout 60`,
   },
@@ -30,9 +30,9 @@ const ISSUES = [
     id: "invalid-api-key",
     title: "Identity Verification Failure",
     badge: "Auth",
-    symptom: "Error: GEMINI_API_KEY is invalid or missing status 401.",
+    symptom: "Error: GITSAGE_API_KEY is invalid or missing status 401.",
     cause: "The secret key provided is either malformed, expired, or has insufficient quota.",
-    solution: `# Verify your environment state\ngitsage config --provider gemini --key YOUR_KEY\n\n# Get a fresh key from:\n# https://aistudio.google.com`,
+    solution: `# Verify your environment state\ngitsage config --provider gitsage --key YOUR_KEY\n\n# Get a fresh key from the portal:\n# https://gitsage.dev/dashboard`,
   }
 ];
 

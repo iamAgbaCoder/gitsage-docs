@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { GitBranch, Code2, AtSign } from "lucide-react";
+import { GitBranch } from "lucide-react";
+import { FaGithub, FaGlobe, FaLinkedin } from "react-icons/fa";
 
 const LINKS = {
   product: [
@@ -55,17 +56,29 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: "#4b5563", transition: "color 0.2s" }}
-                className="footer-icon-link"
+                className="footer-icon-link hover:text-white"
               >
-                <Code2 size={18} />
+                <FaGithub size={18} />
               </a>
               <a
-                href="#"
-                id="footer-twitter"
+                href="http://iamagbacoder.github.io/"
+                id="footer-website"
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{ color: "#4b5563", transition: "color 0.2s" }}
-                className="footer-icon-link"
+                className="footer-icon-link hover:text-white"
               >
-                <AtSign size={18} />
+                <FaGlobe size={18} />
+              </a>
+              <a
+                href="https://linkedin.com/in/iamAgbaCoder"
+                id="footer-linkedin"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#4b5563", transition: "color 0.2s" }}
+                className="footer-icon-link hover:text-sky-400"
+              >
+                <FaLinkedin size={18} />
               </a>
             </div>
           </div>
@@ -110,7 +123,7 @@ export default function Footer() {
           <p style={{ color: "#1f2937", fontSize: "0.78rem" }}>
             Built with{" "}
             <span style={{ color: "#22c55e" }}>♥</span>
-            {" "}by developers, for developers.
+            {" "}by <Link href="https://github.com/iamAgbaCoder" className="text-sage">iamAgbaCoder</Link>, for developers.
           </p>
         </div>
       </div>

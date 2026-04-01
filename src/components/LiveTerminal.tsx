@@ -23,7 +23,7 @@ const COMMAND_RESPONSES: Record<string, TerminalLine[]> = {
   "gitsage": [
     { type: "info", text: "Scanning staged changes...", icon: Search },
     { type: "output", text: "  → 3 files modified, 47 insertions, 12 deletions" },
-    { type: "info", text: "Connecting to Gemini 1.5 Flash...", icon: Cpu },
+    { type: "info", text: "Connecting to GitSage Intelligence Engine...", icon: Cpu },
     { type: "output", text: "  → Model loaded in 0.3s" },
     { type: "info", text: "Generating intelligence report...", icon: Zap },
     { type: "report", text: "Suggesting: feat(auth): add JWT token expiry validation" },
@@ -163,7 +163,7 @@ export default function LiveTerminal() {
              LOCAL_TIME: {mounted ? new Date().toLocaleTimeString() : "--:--:--"}
            </div>
            <div>ENC_STAGED: ACTIVE</div>
-           <div>PROVIDER: {lines.some(l => l.text.includes("Ollama")) ? "OLLAMA" : "GEMINI"}</div>
+           <div>PROVIDER: {lines.some(l => l.text.includes("Ollama")) ? "OLLAMA" : "GITSAGE_API"}</div>
         </div>
       </div>
     </div>

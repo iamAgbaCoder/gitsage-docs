@@ -10,13 +10,14 @@ const viewport: Viewport = {
 
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://gitsage.dev"),
   title: {
     default: "GitSage — The Intelligence Layer for Git",
     template: "%s | GitSage",
   },
   description:
     "Stop writing commit messages. Start generating intelligence. GitSage uses advanced AI to analyze code changes and explain the intent, impact, and scope of every commit. Supports all major programming languages.",
-  keywords: ["git", "ai", "commit", "developer tools", "gemini", "ollama", "conventional commits", "python", "javascript", "rust", "go"],
+  keywords: ["git", "ai", "commit", "developer tools", "gitsage", "ollama", "conventional commits", "python", "javascript", "rust", "go"],
   authors: [{ name: "GitSage Team" }],
   openGraph: {
     type: "website",
@@ -24,10 +25,17 @@ export const metadata: Metadata = {
     description:
       "AI-powered Git commit assistant that understands WHY you coded, not just WHAT you changed.",
     siteName: "GitSage",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "GitSage - AI Powered Git Intelligence" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "GitSage — The Intelligence Layer for Git",
+    images: ["/og-image.png"],
+  },
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 

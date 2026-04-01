@@ -16,16 +16,17 @@ import {
   Cpu,
   Globe,
   Lock,
+  ShieldCheck,
 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "GitSage — Commit with Intelligence, Not Just Messages",
   description:
-    "The production-grade Git Assistant that understands WHY you coded, not just WHAT you changed. AI-powered commit messages with Gemini and Ollama.",
+    "The production-grade Git Assistant that understands WHY you coded, not just WHAT you changed. AI-powered commit messages with GitSage Intelligence and Ollama.",
 };
 
 const METRICS = [
-  { value: "< 2s", label: "Analysis Speed", sub: "10+ files with Gemini Flash" },
+  { value: "< 2s", label: "Analysis Speed", sub: "10+ files with GitSage AI Engine" },
   { value: "~5s", label: "Local Latency", sub: "Ollama/Mistral on avg hardware" },
   { value: "~2MB", label: "Binary Size", sub: "Lightweight CLI footprint" },
   { value: "95%+", label: "Scope Accuracy", sub: "Conventional Commit detection" },
@@ -46,7 +47,7 @@ const PILLARS = [
     bg: "bg-sky-400/10",
     border: "border-sky-400/20",
     title: "Provider Agility",
-    desc: "Seamlessly switch between Google Gemini (Cloud) and Ollama (Local) for maximum privacy. Your architecture, your rules.",
+    desc: "Seamlessly switch between GitSage Cloud and Ollama (Local) for maximum privacy. Your architecture, your rules.",
   },
   {
     icon: GitCommit,
@@ -68,21 +69,21 @@ const PILLARS = [
 
 const REPORT_PILLARS = [
   {
-    emoji: "🧠",
+    icon: Brain,
     title: "What Changed",
     color: "text-green-400",
     borderColor: "border-green-400/30",
     desc: "A concise summary of the structural modifications — file paths, line deltas, and semantic changes extracted from the raw diff.",
   },
   {
-    emoji: "💡",
+    icon: Zap,
     title: "Why it Matters",
     color: "text-sky-400",
     borderColor: "border-sky-400/30",
     desc: "The logical reasoning behind the change, extracted from code diff context — business justification, bug fixes, and performance gains.",
   },
   {
-    emoji: "🎯",
+    icon: ShieldCheck,
     title: "Reach & Scope",
     color: "text-purple-400",
     borderColor: "border-purple-400/30",
@@ -132,7 +133,7 @@ export default function HomePage() {
               </div>
 
               <div className="flex flex-wrap gap-6 text-sm text-slate-500">
-                {["Conventional Commits", "Gemini & Ollama", "95%+ Accuracy"].map((tag) => (
+                {["Conventional Commits", "GitSage & Ollama", "95%+ Accuracy"].map((tag) => (
                   <div key={tag} className="flex items-center gap-2">
                     <CheckCircle size={14} className="text-sage" />
                     {tag}
@@ -197,7 +198,9 @@ export default function HomePage() {
             <div className="grid lg:grid-cols-3 gap-6">
               {REPORT_PILLARS.map((p) => (
                 <div key={p.title} className={`glass-strong tactical-grid p-8 rounded-3xl text-center border-t-2 ${p.borderColor}`}>
-                  <div className="text-5xl mb-6">{p.emoji}</div>
+                  <div className={`flex justify-center mb-6 ${p.color}`}>
+                     <p.icon size={48} strokeWidth={1.5} />
+                  </div>
                   <h4 className={`text-xl font-bold mb-4 ${p.color}`}>{p.title}</h4>
                   <p className="text-slate-400 leading-relaxed text-sm">{p.desc}</p>
                 </div>
@@ -223,7 +226,7 @@ export default function HomePage() {
                     <Globe size={18} className="text-sky-400" />
                     <span className="font-bold text-slate-50">Cloud Mode</span>
                   </div>
-                  <p className="text-sm text-slate-400 leading-relaxed">Use Google Gemini 1.5 Flash for high-performance, deep reasoning. Sub-2s analysis on 10+ modified files.</p>
+                  <p className="text-sm text-slate-400 leading-relaxed">Use the GitSage Intelligence Layer for high-performance, deep reasoning. Sub-2s analysis on 10+ modified files.</p>
                 </div>
                 <div className="glass p-5 rounded-2xl border-l-4 border-l-sage">
                   <div className="flex items-center gap-3 mb-2">
@@ -254,7 +257,7 @@ export default function HomePage() {
              <div className="absolute top-0 right-0 w-64 h-64 bg-sage/10 blur-[80px] -mr-32 -mt-32" />
              <div className="absolute bottom-0 left-0 w-64 h-64 bg-sky-500/10 blur-[80px] -ml-32 -mb-32" />
              
-             <div className="text-6xl mb-8">🧠</div>
+             <div className="flex justify-center mb-8"><Brain size={64} className="text-sage" /></div>
              <h2 className="text-3xl md:text-5xl font-outfit font-bold text-slate-50 mb-6">Ready to write intelligent commits?</h2>
              <p className="text-slate-400 text-lg mb-10 max-w-lg mx-auto">Install in seconds. Works with any Git repository. No lock-in, no subscriptions.</p>
              
@@ -267,7 +270,7 @@ export default function HomePage() {
                   <Terminal size={18} className="fill-current" />
                   Read the Docs
                 </Link>
-                <Link href="https://github.com" className="btn-ghost">
+                <Link href="https://github.com/iamAgbaCoder/gitsage" className="btn-ghost">
                   View on GitHub
                   <ArrowRight size={16} />
                 </Link>
