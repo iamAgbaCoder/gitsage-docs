@@ -111,13 +111,13 @@ export default function HomePage() {
                 Commit with <br />
                 <span className="gradient-sage">Intelligence</span>,
                 <br />
-                Not Just Messages.
+                Any Language.
               </h1>
 
               <p className="text-lg md:text-xl text-slate-400 leading-relaxed max-w-lg mb-10">
                 The production-grade Git Assistant that understands{" "}
                 <span className="text-slate-300 italic font-medium">WHY</span> you coded, not just{" "}
-                <span className="text-slate-300 italic font-medium">WHAT</span> you changed.
+                <span className="text-slate-300 italic font-medium">WHAT</span> you changed. Supports Python, JS, Go, Rust, and more.
               </p>
 
               <div className="flex flex-wrap gap-4 mb-10">

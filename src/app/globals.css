@@ -24,6 +24,8 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 142.1 70.6% 45.3%;
     --radius: 0.5rem;
+    --font-outfit: 'Outfit', sans-serif;
+    --font-fira-code: 'Fira Code', monospace;
   }
 }
 

@@ -22,7 +22,8 @@ export default function GettingStartedPage() {
            Installation Guide
         </h1>
         <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
-          GitSage is a lightweight Python CLI tool that integrates directly with your Git workflow. 
+          GitSage is a lightweight, language-agnostic CLI tool that integrates directly with your Git workflow. 
+          Supports Python, JavaScript, TypeScript, Go, Rust, and more. 
           Install it in seconds and start generating intelligence for your repository.
         </p>
       </header>
@@ -81,15 +82,15 @@ export default function GettingStartedPage() {
            <Key size={20} className="text-amber-400" /> API Configuration
         </h2>
         <p className="text-sm text-slate-400 leading-relaxed max-w-3xl">
-           GitSage uses Google Gemini by default for cloud-based inference. 
-           Acquire your free API key from 
-           <a href="https://aistudio.google.com" target="_blank" className="text-sage hover:underline mx-1">Google AI Studio</a> 
+           GitSage uses centralized intelligence by default. 
+           Acquire your production API key by signing up on our 
+           <Link href="/dashboard" className="text-sage hover:underline mx-1">GitSage Portal</Link> 
            and configure your environment:
         </p>
         <Card variant="solid" className="border-amber-400/20">
            <CardContent className="space-y-4">
               <CodeBlock 
-                code={`# Configure via GitSage CLI (Recommended)\ngitsage config --provider gemini --key YOUR_GEMINI_KEY`} 
+                code={`# Configure via GitSage CLI (Recommended)\ngitsage config --provider gitsage --key YOUR_GITSAGE_KEY`} 
                 language="bash" 
               />
               <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200/70 text-xs leading-relaxed">

@@ -8,18 +8,6 @@ const viewport: Viewport = {
   themeColor: "#020617",
 };
 
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const firaCode = Fira_Code({
-  variable: "--font-fira-code",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["300", "400", "500", "600", "700"],
-});
 
 export const metadata: Metadata = {
   title: {
@@ -27,8 +15,8 @@ export const metadata: Metadata = {
     template: "%s | GitSage",
   },
   description:
-    "Stop writing commit messages. Start generating intelligence. GitSage uses advanced AI to analyze code changes and explain the intent, impact, and scope of every commit.",
-  keywords: ["git", "ai", "commit", "developer tools", "gemini", "ollama", "conventional commits"],
+    "Stop writing commit messages. Start generating intelligence. GitSage uses advanced AI to analyze code changes and explain the intent, impact, and scope of every commit. Supports all major programming languages.",
+  keywords: ["git", "ai", "commit", "developer tools", "gemini", "ollama", "conventional commits", "python", "javascript", "rust", "go"],
   authors: [{ name: "GitSage Team" }],
   openGraph: {
     type: "website",
@@ -49,7 +37,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${outfit.variable} ${firaCode.variable}`}>
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      </head>
       <body className="bg-[#020617] text-white selection:bg-sage/30">
         <AuthProvider>
           {children}

@@ -123,7 +123,7 @@ export default function Header() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="absolute top-[calc(100%+10px)] inset-x-0 glass rounded-2xl overflow-hidden border border-white/10 md:hidden pb-4"
+              className="absolute top-[calc(100%+10px)] inset-x-0 bg-[#030712] rounded-2xl overflow-hidden border border-white/10 md:hidden pb-4 shadow-2xl"
             >
               <div className="p-4 flex flex-col gap-2">
                 {NAV_LINKS.map((link) => (

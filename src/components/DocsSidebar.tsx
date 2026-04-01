@@ -80,11 +80,13 @@ export default function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
       {/* Sidebar Container */}
       <motion.aside
         initial={false}
-        animate={{ x: isOpen ? 0 : "-100%" }}
+        animate={{ 
+          x: isOpen ? 0 : (typeof window !== 'undefined' && window.innerWidth >= 1024 ? 0 : "-100%") 
+        }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         className={cn(
-          "fixed inset-y-0 left-0 w-80 h-full bg-[#030712]/95 backdrop-blur-xl border-r border-white/5 z-[101] p-6 pt-12 overflow-y-auto custom-scrollbar lg:relative lg:translate-x-0 lg:w-72 lg:bg-transparent lg:border-none lg:z-10 lg:pt-0 pb-20",
-          !isOpen && "lg:block" // Force block for large screens
+          "fixed inset-y-0 left-0 w-80 h-full bg-[#030712] border-r border-white/5 z-[101] p-6 pt-12 overflow-y-auto custom-scrollbar lg:relative lg:translate-x-0 lg:w-72 lg:bg-transparent lg:border-none lg:z-10 lg:pt-0 pb-20",
+          isOpen ? "block" : "hidden lg:block"
         )}
       >
         {/* Navigation Wrapper */}
