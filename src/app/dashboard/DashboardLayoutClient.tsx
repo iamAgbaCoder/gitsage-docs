@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   LayoutDashboard, 
@@ -11,6 +11,7 @@ import {
   Settings, 
   LogOut, 
   ChevronLeft, 
+  ChevronRight,
   Menu, 
   X,
   User,
@@ -28,9 +29,9 @@ const DASHBOARD_LINKS = [
 
 export default function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const router = useRouter();
+  const { user, logout, isLoading } = useAuth();
   
-  // Default to false for mobile first, true for desktop
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
 
@@ -48,6 +49,28 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Authentication Redirect
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push("/login");
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#020617]">
+        <div className="flex flex-col items-center gap-4">
+           <div className="w-12 h-12 rounded-2xl bg-sage/20 border border-sage/40 flex items-center justify-center animate-pulse">
+              <LayoutDashboard size={24} className="text-sage" />
+           </div>
+           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest animate-pulse">Initializing Portal...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <div className="flex h-screen bg-[#020617] overflow-hidden">
@@ -69,13 +92,13 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
         className={cn(
           "fixed lg:relative flex flex-col h-full bg-[#030712] border-r border-white/5 z-50 transition-all duration-300 ease-in-out",
           // Mobile classes
-          !isDesktop && (isSidebarOpen ? "translate-x-0 w-[280px]" : "-translate-x-full w-[280px]"),
+          !isDesktop && (isSidebarOpen ? "translate-x-0 w-[240px] sm:w-[280px]" : "-translate-x-full w-[240px] sm:w-[280px]"),
           // Desktop classes
           isDesktop && (isSidebarOpen ? "translate-x-0 w-[280px]" : "translate-x-0 w-20")
         )}
       >
         {/* Logo Section */}
-        <div className="flex items-center gap-3 px-6 h-20 border-b border-white/5 mb-6 overflow-hidden">
+        <div className="flex items-center gap-3 px-6 h-20 border-b border-white/5 mb-6 overflow-hidden shrink-0">
           <div className="w-8 h-8 rounded-lg bg-sage flex items-center justify-center shrink-0">
              <LayoutDashboard size={18} className="text-obsidian" />
           </div>
@@ -87,7 +110,7 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
         </div>
 
         {/* Nav Links */}
-        <nav className="flex-1 px-4 space-y-1.5 overflow-hidden">
+        <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
           {DASHBOARD_LINKS.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -113,7 +136,7 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
         </nav>
 
         {/* User Card */}
-        <div className="p-4 border-t border-white/5 mt-auto overflow-hidden">
+        <div className="p-4 border-t border-white/5 mt-auto overflow-hidden shrink-0">
           <div className={cn(
             "flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/5 transition-all text-left",
             !isSidebarOpen && "p-2 justify-center"
@@ -147,18 +170,18 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="absolute -right-3 top-24 w-6 h-6 rounded-full bg-[#030712] border border-white/10 flex items-center justify-center text-slate-500 hover:text-sage transition-colors z-50 shadow-xl"
           >
-            {isSidebarOpen ? <ChevronLeft size={14} /> : <X size={14} />}
+            {isSidebarOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
           </button>
         )}
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 h-full overflow-y-auto px-6 lg:px-12 py-8 custom-scrollbar relative">
+      <main className="flex-1 h-full overflow-y-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 custom-scrollbar relative">
          <div className="absolute top-0 right-0 w-96 h-96 bg-sage/5 blur-[120px] rounded-full -z-10 pointer-events-none" />
          
          {/* Top Bar for Dashboard */}
-         <div className="flex justify-between mb-10 pb-8 border-b border-white/5 gap-4">
-            <div className="flex items-start gap-4">
+         <div className="flex justify-between items-center mb-6 sm:mb-10 pb-6 sm:pb-8 border-b border-white/5 gap-4">
+            <div className="flex items-center gap-4">
                {!isDesktop && (
                  <button 
                    onClick={() => setIsSidebarOpen(true)} 
@@ -168,18 +191,20 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
                  </button>
                )}
                <div>
-                  <h1 className="text-xl font-bold font-outfit text-white">Dashboard Portal</h1>
-                  <p className="text-xs text-slate-500 uppercase tracking-widest mt-1">Status: Fully Operational</p>
+                  <h1 className="text-lg sm:text-xl font-bold font-outfit text-white">Dashboard Portal</h1>
+                  <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">Status: Operational</p>
                </div>
             </div>
-            <div className="flex items-center gap-4 hidden sm:flex">
+            <div className="flex items-center gap-4">
                <Link href="/docs" className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-sage transition-all">
-                  Documentation <ExternalLink size={12} />
+                  <span className="hidden sm:inline">Documentation</span> <ExternalLink size={12} />
                </Link>
             </div>
          </div>
          
-         {children}
+         <div className="max-w-6xl mx-auto">
+            {children}
+         </div>
       </main>
     </div>
   );

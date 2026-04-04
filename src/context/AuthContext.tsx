@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import api from "@/lib/api";
+import { GitSageAPI } from "@/lib/api";
 import { toast } from "react-hot-toast";
 
 interface User {
@@ -18,7 +18,7 @@ interface AuthContextType {
   login: (userData: any) => Promise<void>;
   signup: (userData: any) => Promise<void>;
   logout: () => void;
-  verifyEmail: (token: string) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,39 +28,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Initial check for user sesión
-    const token = localStorage.getItem("gitsage_token");
+    const token = typeof window !== "undefined" ? localStorage.getItem("gitsage_access_token") : null;
     if (token) {
-      // Mocked user profile fetch
-      setIsLoading(true);
-      setTimeout(() => {
-        setUser({
-          id: "666",
-          email: "dev@gitsage.dev",
-          name: "Sébastien Sage",
-          apiKey: "gs_7f23x90kLmA1",
-          avatarUrl: "https://avatar.vercel.sh/gitsage",
-        });
-        setIsLoading(false);
-      }, 500);
+      refreshUser();
     } else {
       setIsLoading(false);
     }
   }, []);
 
+  const refreshUser = async () => {
+    try {
+      setIsLoading(true);
+      const profile = await GitSageAPI.getProfile() as any;
+      setUser(profile);
+      if (profile.apiKey) {
+        localStorage.setItem("gitsage_api_key", profile.apiKey);
+      }
+    } catch (error) {
+      setUser(null);
+      localStorage.removeItem("gitsage_access_token");
+      localStorage.removeItem("gitsage_api_key");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const login = async (credentials: any) => {
     setIsLoading(true);
     try {
-      // Mocked API call
-      // const response = await api.post("/auth/login", credentials);
-      // const { token, user } = response.data;
-      
-      const mockResult = { token: "fake_jwt", user: { id: "666", email: credentials.email, name: "User" } };
-      localStorage.setItem("gitsage_token", mockResult.token);
-      setUser(mockResult.user as User);
-      toast.success("Welcome back, Commander.");
+      const data = await GitSageAPI.login(credentials);
+      setUser(data.user);
+      if (data.user.apiKey) {
+        localStorage.setItem("gitsage_api_key", data.user.apiKey);
+      }
+      toast.success(`Welcome back, ${data.user.name.split(' ')[0]}.`);
     } catch (error) {
-      // Handled by axios interceptor
+      // Errors are handled by axios interceptor toast
       throw error;
     } finally {
       setIsLoading(false);
@@ -70,8 +73,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signup = async (userData: any) => {
     setIsLoading(true);
     try {
-      // await api.post("/auth/signup", userData);
-      toast.success("Verification email sent. Please check your inbox.");
+      const data = await GitSageAPI.signup(userData);
+      setUser(data.user);
+      if (data.user.apiKey) {
+        localStorage.setItem("gitsage_api_key", data.user.apiKey);
+      }
+      toast.success("Account created successfully!");
     } catch (error) {
       throw error;
     } finally {
@@ -80,22 +87,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem("gitsage_token");
+    localStorage.removeItem("gitsage_access_token");
+    localStorage.removeItem("gitsage_api_key");
     setUser(null);
-    toast.success("Disconnected successfully.");
-  };
-
-  const verifyEmail = async (token: string) => {
-    try {
-      // await api.post("/auth/verify", { token });
-      toast.success("Email verified. You can now login.");
-    } catch (error) {
-      throw error;
-    }
+    toast.success("Safely disconnected.");
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, verifyEmail }}>
+    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

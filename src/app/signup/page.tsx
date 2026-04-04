@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/Card";
 import { motion } from "framer-motion";
+import { GitSageAPI } from "@/lib/api";
 
 export default function SignupPage() {
   const { signup, isLoading } = useAuth();
@@ -86,7 +87,11 @@ export default function SignupPage() {
               <Button variant="secondary" className="w-full text-xs">
                 <FaGoogle className="text-red-400" /> Google
               </Button>
-              <Button variant="secondary" className="w-full text-xs">
+              <Button 
+                variant="secondary" 
+                className="w-full text-xs" 
+                onClick={() => window.location.href = GitSageAPI.getGitHubAuthUrl()}
+              >
                 <FaGithub /> GitHub
               </Button>
             </div>

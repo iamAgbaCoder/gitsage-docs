@@ -1,23 +1,29 @@
 import axios, { AxiosError } from "axios";
 import { toast } from "react-hot-toast";
 
-// Ensure this environment variable is set in your .env.local
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.gitsage.dev/v1";
+// Use the production API base URL
+const API_BASE_URL = "https://gitsage-api.up.railway.app/v1";
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 30000, // 30 seconds default timeout
+  timeout: 30000, 
 });
 
-// Request Interceptor: Inject Auth Token
+// Request Interceptor: Inject Auth Token or API Key
 apiClient.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
+    // If it's a CLI-like request (to intelligence/usage), we might use X-API-Key
+    // But for the portal, we mostly use JWT
     const token = localStorage.getItem("gitsage_access_token");
-    if (token) {
+    const apiKey = localStorage.getItem("gitsage_api_key");
+
+    if (token && !config.url?.includes("/intelligence") && !config.url?.includes("/usage")) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else if (apiKey && (config.url?.includes("/intelligence") || config.url?.includes("/usage"))) {
+      config.headers["X-API-Key"] = apiKey;
     }
   }
   return config;
@@ -25,49 +31,54 @@ apiClient.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-// Response Interceptor: Global Error Handling
+// Response Interceptor: Handle the standardized { success, message, data } wrapper
 apiClient.interceptors.response.use(
   (response) => {
-    return response.data;
+    const { success, message, data } = response.data;
+    
+    if (success === false) {
+      toast.error(message || "Operation failed");
+      return Promise.reject(new Error(message || "Operation failed"));
+    }
+    
+    return data; // Return only the data payload to the caller
   },
   (error: AxiosError) => {
+    let errorMessage = "An unexpected error occurred.";
+    
     if (error.response) {
-      // The request was made and the server responded with a status code
-      // outside of the range of 2xx
       const status = error.response.status;
       const data = error.response.data as any;
-      const message = data?.message || data?.error || "An unexpected error occurred.";
+      errorMessage = data?.message || data?.error || errorMessage;
 
       if (status === 401) {
-        toast.error("Session expired or invalid token. Please log in again.");
+        toast.error("Session expired. Please log in again.");
         if (typeof window !== "undefined") {
           localStorage.removeItem("gitsage_access_token");
-          // Optionally redirect to login, but avoid full reloads aggressively
         }
-      } else if (status === 403) {
-        toast.error("Not authorized to perform this action.");
+      } else if (status === 429) {
+        toast.error("Rate limit exceeded. Slow down, sage.");
       } else if (status >= 500) {
-        toast.error("GitSage intelligence engine is temporarily unavailable.");
+        toast.error("GitSage engine is currently under heavy load.");
       } else {
-        toast.error(message);
+        toast.error(errorMessage);
       }
     } else if (error.request) {
-      // The request was made but no response was received
-      toast.error("Unable to connect to GitSage Engine. Check your connection.");
+      toast.error("Unable to connect to GitSage Engine.");
     } else {
-      // Something happened in setting up the request
-      toast.error("Request configuration error.");
+      toast.error("Network configuration error.");
     }
+    
     return Promise.reject(error);
   }
 );
 
-// --- API Service Models ---
+// --- API Service Methods ---
 
-export interface CommitPayload {
+export interface AnalyzePayload {
   diff: string;
-  provider?: "gitsage" | "local";
-  model?: string;
+  context?: string;
+  style?: "conventional" | "detailed" | "minimal";
 }
 
 export interface AuthPayload {
@@ -75,48 +86,51 @@ export interface AuthPayload {
   password?: string;
 }
 
-// --- Intelligence API Methods ---
-
 export const GitSageAPI = {
   /**
-   * Generates an intelligent commit message and analysis from a raw git diff.
-   */
-  generateCommit: async (payload: CommitPayload) => {
-    return await apiClient.post("/intelligence/commit", payload);
-  },
-
-  /**
-   * Explains the logical intent and scope of a given commit diff.
-   */
-  explainCommit: async (payload: CommitPayload) => {
-    return await apiClient.post("/intelligence/explain", payload);
-  },
-
-  /**
-   * Authenticate a user and retrieve a session token.
+   * AUTHENTICATION
    */
   login: async (payload: AuthPayload) => {
-    const response: any = await apiClient.post("/auth/login", payload);
-    // Automatically store token on successful login
-    if (response?.token && typeof window !== "undefined") {
-      localStorage.setItem("gitsage_access_token", response.token);
+    const data = await apiClient.post("/auth/login", payload) as any;
+    if (data?.token) {
+      localStorage.setItem("gitsage_access_token", data.token);
     }
-    return response;
+    return data;
   },
 
-  /**
-   * Register a new developer account.
-   */
   signup: async (payload: AuthPayload) => {
-    const response: any = await apiClient.post("/auth/signup", payload);
-    if (response?.token && typeof window !== "undefined") {
-      localStorage.setItem("gitsage_access_token", response.token);
+    const data = await apiClient.post("/auth/signup", payload) as any;
+    if (data?.token) {
+      localStorage.setItem("gitsage_access_token", data.token);
     }
-    return response;
+    return data;
+  },
+
+  getGitHubAuthUrl: () => `${API_BASE_URL}/auth/github`,
+
+  /**
+   * API KEY MANAGEMENT
+   */
+  generateApiKey: async (name: string = "Default Key") => {
+    return await apiClient.post("/api-keys/generate", { name });
   },
 
   /**
-   * Verify current session and retrieve profile data.
+   * CORE INTELLIGENCE (CLI Endpoints)
+   */
+  analyzeDiff: async (payload: AnalyzePayload) => {
+    return await apiClient.post("/intelligence/analyze", payload);
+  },
+
+  /**
+   * USAGE & QUOTAS
+   */
+  getUsageStats: async () => {
+    return await apiClient.get("/usage/stats");
+  },
+
+  /**
+   * PROFILE (If needed, though not in spec, usually exists)
    */
   getProfile: async () => {
     return await apiClient.get("/auth/me");
