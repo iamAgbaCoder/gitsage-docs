@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Mail, Lock, User, UserPlus, ChevronRight } from "lucide-react";
 import { FaGoogle, FaGithub } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
@@ -12,6 +13,7 @@ import { motion } from "framer-motion";
 import { GitSageAPI } from "@/lib/api";
 
 export default function SignupPage() {
+  const router = useRouter();
   const { signup, isLoading } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
@@ -21,7 +23,12 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signup(formData);
+    try {
+      await signup(formData);
+      router.push("/dashboard");
+    } catch (err) {
+      // Handled by AuthContext/Interceptor
+    }
   };
 
   return (

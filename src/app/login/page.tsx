@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Mail, Lock, LogIn, ChevronRight } from "lucide-react";
 import { FaGoogle, FaGithub } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
@@ -12,13 +13,19 @@ import { motion } from "framer-motion";
 import { GitSageAPI } from "@/lib/api";
 
 export default function LoginPage() {
+  const router = useRouter();
   const { login, isLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login({ email, password });
+    try {
+      await login({ email, password });
+      router.push("/dashboard");
+    } catch (err) {
+      // Error handled by AuthContext/Interceptor
+    }
   };
 
   return (

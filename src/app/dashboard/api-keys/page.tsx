@@ -1,0 +1,209 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { Key, Copy, Check, Trash2, Plus, Terminal, PlusCircle, Shield, Globe } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { toast } from "react-hot-toast";
+import { GitSageAPI } from "@/lib/api";
+import { motion, AnimatePresence } from "framer-motion";
+
+export default function ApiKeysPage() {
+  const auth = useAuth();
+  const user = auth?.user;
+  const refreshUser = auth?.refreshUser;
+
+  const [keys, setKeys] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [newKeyName, setNewKeyName] = useState("");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchKeys();
+  }, []);
+
+  const fetchKeys = async () => {
+    try {
+      setIsLoading(true);
+      const data: any = await GitSageAPI.listApiKeys();
+      // Safely handle both { keys: [] } and [] response formats
+      const extractedKeys = Array.isArray(data) ? data : (data?.keys || []);
+      setKeys(extractedKeys);
+    } catch (err) {
+      console.error("Failed to fetch keys", err);
+      setKeys([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGenerateKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newKeyName.trim()) return;
+    try {
+      setIsCreating(true);
+      const res: any = await GitSageAPI.generateApiKey(newKeyName);
+      toast.success("New production key generated.");
+      setNewKeyName("");
+      // Add the new key to the list temporarily if it handles a return, otherwise refetch
+      if (res?.key) {
+        // Most APIs return the full key only once. Let's refetch to get the updated status
+        await fetchKeys();
+      } else {
+        await fetchKeys();
+      }
+    } catch (err) {
+      // Handled by interceptor
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleRevokeKey = async (id: string) => {
+    try {
+      await GitSageAPI.revokeApiKey(id);
+      toast.success("Key successfully revoked.");
+      await fetchKeys();
+    } catch (err) {}
+  };
+
+  const copyToClipboard = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    toast.success("Copied to clipboard.");
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  return (
+    <div className="space-y-8 sm:space-y-12">
+      {/* Page Header */}
+      <section className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+        <div className="space-y-2">
+           <div className="flex items-center gap-2 text-sage uppercase tracking-[0.2em] text-[10px] font-bold">
+              <Shield size={12} />
+              Identity Security
+           </div>
+           <h1 className="text-3xl sm:text-4xl font-bold font-outfit text-white">Advanced API Keys</h1>
+           <p className="text-slate-400 max-w-lg text-sm sm:text-base">Management layer for your GitSage authentication tokens. These keys authorize the CLI to communicate with our Intelligence Engine.</p>
+        </div>
+      </section>
+
+      {/* Stats row for keys */}
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: "Active Keys", value: keys.length, color: "text-sage" },
+          { label: "Revoked Keys", value: "0", color: "text-slate-500" },
+          { label: "Global Reach", value: "12 Edge Nodes", color: "text-sky-400" },
+          { label: "Security Level", value: "AES-256", color: "text-amber-400" },
+        ].map((stat) => (
+          <Card key={stat.label} className="p-4 sm:p-6 text-center">
+             <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">{stat.label}</p>
+             <p className={stat.color + " text-2xl font-bold font-outfit"}>{stat.value}</p>
+          </Card>
+        ))}
+      </section>
+
+      {/* Main Keys List */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <Card variant="glass" className="overflow-hidden">
+            <CardHeader className="flex items-center justify-between py-6">
+               <h3 className="font-bold text-sm uppercase tracking-widest text-white">Active Access Tokens</h3>
+               <span className="text-[10px] text-slate-500 font-bold uppercase">{keys.length} Keys Found</span>
+            </CardHeader>
+            <CardContent className="divide-y divide-white/5 p-0">
+               {isLoading ? (
+                 <div className="p-12 flex flex-col items-center justify-center gap-4 text-slate-500 animate-pulse">
+                    <Terminal size={32} />
+                    <p className="text-xs uppercase font-bold tracking-widest">Querying Identity Vault...</p>
+                 </div>
+               ) : keys.length === 0 ? (
+                 <div className="p-12 text-center space-y-4">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto text-slate-600">
+                       <Key size={32} />
+                    </div>
+                    <p className="text-slate-400 text-sm">No active API keys located for this account.</p>
+                 </div>
+               ) : (
+                 keys.map((key) => (
+                   <div key={key.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:bg-white/[0.02] transition-all group">
+                      <div className="space-y-1">
+                         <div className="flex items-center gap-3">
+                            <h4 className="font-bold text-white text-sm tracking-tight">{key.name}</h4>
+                            {key.status === "active" && <span className="px-2 py-0.5 rounded-full bg-sage/10 text-sage text-[9px] font-bold uppercase border border-sage/10">Active</span>}
+                         </div>
+                         <p className="text-xs font-mono text-slate-500">{key.prefix}••••••••••••••••••••</p>
+                      </div>
+                      <div className="flex items-center gap-4">
+                         <div className="text-right hidden sm:block">
+                            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Last Used</p>
+                            <p className="text-[10px] text-slate-300 font-fira">{key.lastUsed || "Never"}</p>
+                         </div>
+                         <div className="flex items-center gap-2 ml-auto">
+                            <button 
+                               onClick={() => copyToClipboard(`gs_live_${key.id}_secret`, key.id)}
+                               className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-slate-400 hover:text-white hover:border-white/10 transition-all"
+                               title="Copy Key Prefix"
+                            >
+                               {copiedId === key.id ? <Check size={16} className="text-sage" /> : <Copy size={16} />}
+                            </button>
+                            <button 
+                               onClick={() => handleRevokeKey(key.id)}
+                               className="p-2.5 rounded-xl bg-red-500/5 border border-red-500/10 text-red-500 hove:bg-red-500/20 transition-all opacity-20 group-hover:opacity-100"
+                               title="Revoke Key"
+                            >
+                               <Trash2 size={16} />
+                            </button>
+                         </div>
+                      </div>
+                   </div>
+                 ))
+               )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Sidebar Creation Panel */}
+        <div className="space-y-6">
+          <Card variant="glow" className="p-8">
+             <div className="space-y-6 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-sage/10 border border-sage/20 flex items-center justify-center mx-auto text-sage">
+                   <PlusCircle size={32} />
+                </div>
+                <div className="space-y-2">
+                   <h3 className="font-bold text-white text-xl font-outfit">Issue New Token</h3>
+                   <p className="text-xs text-slate-500 leading-relaxed uppercase tracking-widest">GitSage uses granular scoping. Each key is rate-limited independently.</p>
+                </div>
+                
+                <form onSubmit={handleGenerateKey} className="space-y-4 pt-4">
+                   <input 
+                     type="text" 
+                     placeholder="Name: e.g Production-Vercel"
+                     value={newKeyName}
+                     onChange={(e) => setNewKeyName(e.target.value)}
+                     className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-sage/40 transition-all font-outfit"
+                     required
+                   />
+                   <Button className="w-full py-6" disabled={isCreating}>
+                      {isCreating ? "Generating Intelligence Signature..." : "Create Intelligence Key"}
+                      {!isCreating && <Plus size={18} className="ml-2" />}
+                   </Button>
+                </form>
+             </div>
+          </Card>
+
+          <Card variant="glass" className="p-6 overflow-hidden relative">
+             <div className="absolute top-0 right-0 p-4 opacity-10 text-sage rotate-12"><Globe size={64} /></div>
+             <div className="relative z-10 space-y-4">
+                <p className="text-[9px] font-bold text-sage uppercase tracking-widest flex items-center gap-2"><Plus size={10} /> Integration Tip</p>
+                <h4 className="font-bold text-white text-sm">Automate Your Workflow</h4>
+                <p className="text-xs text-slate-500 leading-relaxed">Add these keys as SECRETS in your CI/CD platform (GitHub Actions, GitLab CI) to automate commit analysis globally.</p>
+             </div>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}

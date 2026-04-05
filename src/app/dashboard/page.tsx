@@ -88,7 +88,7 @@ export default function DashboardOverview() {
                <Zap size={14} className="text-sage" />
                <span className="text-[10px] font-bold text-sage uppercase tracking-widest">GitSage Intelligence Active</span>
             </div>
-            <h2 className="text-2xl sm:text-4xl font-bold font-outfit text-white">Salutations, {user?.name.split(" ")[0]}</h2>
+            <h2 className="text-2xl sm:text-4xl font-bold font-outfit text-white tracking-tight">Salutations, {(user?.name || "Member").split(" ")[0]}</h2>
             <p className="text-slate-400 max-w-xl text-sm sm:text-lg leading-relaxed font-outfit">Your GitSage intelligence engine is fully operational. You can now manage your keys and view real-time analysis reports.</p>
          </div>
       </motion.section>
@@ -179,7 +179,7 @@ export default function DashboardOverview() {
                           <p className="text-[10px] text-slate-500">Tier: Developer (Flash Engine)</p>
                        </div>
                        <span className="text-xl sm:text-2xl font-bold font-fira text-sage">
-                         {usage ? Math.round((usage.requests_count / 100) * 100) : 0}%
+                         {usage?.requests_count ? Math.round((usage.requests_count / 100) * 100) : 0}%
                        </span>
                     </div>
                     <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 p-[1px]">
