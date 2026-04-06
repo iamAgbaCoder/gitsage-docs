@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RefreshCw, GitBranch } from "lucide-react";
 import { GitSageAPI } from "@/lib/api";
@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
 
-export default function GitHubCallbackPage() {
+function GitHubCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { refreshUser } = useAuth();
@@ -82,5 +82,17 @@ export default function GitHubCallbackPage() {
          Encrypted Connection Protocol v2.4
       </div>
     </div>
+  );
+}
+
+export default function GitHubCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#030712] flex items-center justify-center">
+        <RefreshCw className="w-8 h-8 animate-spin text-sage" />
+      </div>
+    }>
+      <GitHubCallbackContent />
+    </Suspense>
   );
 }

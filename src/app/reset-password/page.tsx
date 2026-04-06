@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, Save, CheckCircle2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import { GitSageAPI } from "@/lib/api";
 import { toast } from "react-hot-toast";
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -115,5 +115,13 @@ export default function ResetPasswordPage() {
         </Card>
       </motion.div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }
