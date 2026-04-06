@@ -16,16 +16,19 @@ export default function DashboardOverview() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const stats = await GitSageAPI.getUsageStats();
-        setUsage(stats);
-      } catch (err) {
-        console.error("Failed to fetch usage stats");
-      }
-    };
     fetchStats();
+    const interval = setInterval(fetchStats, 10000);
+    return () => clearInterval(interval);
   }, []);
+
+  const fetchStats = async () => {
+    try {
+      const stats = await GitSageAPI.getUsageStats();
+      setUsage(stats);
+    } catch (err) {
+      console.error("Failed to fetch usage stats");
+    }
+  };
 
   const handleCopyKey = () => {
     if (user?.apiKey) {
@@ -137,18 +140,27 @@ export default function DashboardOverview() {
               <CardContent className="flex-1 space-y-6 pt-10">
                  <div className="space-y-3">
                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-1">Master Production Key</label>
-                    <div className="flex items-center gap-2 p-2 rounded-xl bg-black/40 border border-white/5 font-fira text-xs sm:text-sm text-slate-400 shadow-inner">
-                       <span className="flex-1 px-3 py-1 font-mono truncate">
-                         {user?.apiKey ? `gs_live_${user.apiKey.substring(0, 4)}••••${user.apiKey.substring(user.apiKey.length - 4)}` : "no_key_found"}
-                       </span>
-                       <button 
-                         onClick={handleCopyKey}
-                         className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-500 hover:text-sage transition-all border border-white/5 shrink-0"
-                       >
-                         {copied ? <Check size={16} className="text-sage" /> : <Copy size={16} />}
-                       </button>
-                    </div>
-                    <p className="text-[10px] text-slate-500 italic px-1">**Security Notice**: Never expose your master key publicly. Rotate immediately if compromised.</p>
+                     <div className="flex items-center gap-2 p-2 rounded-xl bg-black/40 border border-white/5 font-fira text-xs sm:text-sm text-slate-400 shadow-inner">
+                        <span className="flex-1 px-3 py-1 font-mono truncate">
+                          {(!user?.apiKey || user.apiKey === "no_key_found") ? (
+                            <span className="text-slate-600 italic">No master key located...</span>
+                          ) : (
+                            `gs_live_${user.apiKey.substring(0, 4)}••••${user.apiKey.substring(user.apiKey.length - 4)}`
+                          )}
+                        </span>
+                        <button 
+                          onClick={handleCopyKey}
+                          disabled={!user?.apiKey || user.apiKey === "no_key_found"}
+                          className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-500 hover:text-sage transition-all border border-white/5 shrink-0 disabled:opacity-20"
+                        >
+                          {copied ? <Check size={16} className="text-sage" /> : <Copy size={16} />}
+                        </button>
+                     </div>
+                     <p className="text-[10px] text-slate-500 italic px-1">
+                        {(!user?.apiKey || user.apiKey === "no_key_found") 
+                          ? "**Action Required**: Generate your master signature to enable the engine."
+                          : "**Security Notice**: Never expose your master key publicly. Rotate immediately if compromised."}
+                     </p>
                  </div>
               </CardContent>
               <div className="p-6 bg-black/20 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">

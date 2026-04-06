@@ -15,11 +15,13 @@ export default function UsageStatsPage() {
 
   useEffect(() => {
     fetchStats();
+    // Real-time telemetry polling (Every 10 seconds)
+    const interval = setInterval(fetchStats, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchStats = async () => {
     try {
-      setIsLoading(true);
       const data = await GitSageAPI.getUsageStats();
       setStats(data);
     } catch (err) {

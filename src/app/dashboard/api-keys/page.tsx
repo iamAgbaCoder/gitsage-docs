@@ -22,18 +22,18 @@ export default function ApiKeysPage() {
 
   useEffect(() => {
     fetchKeys();
+    // Real-time polling simulation (Every 10 seconds)
+    const interval = setInterval(fetchKeys, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchKeys = async () => {
     try {
-      setIsLoading(true);
       const data: any = await GitSageAPI.listApiKeys();
-      // Safely handle both { keys: [] } and [] response formats
       const extractedKeys = Array.isArray(data) ? data : (data?.keys || []);
       setKeys(extractedKeys);
     } catch (err) {
       console.error("Failed to fetch keys", err);
-      setKeys([]);
     } finally {
       setIsLoading(false);
     }
@@ -44,18 +44,11 @@ export default function ApiKeysPage() {
     if (!newKeyName.trim()) return;
     try {
       setIsCreating(true);
-      const res: any = await GitSageAPI.generateApiKey(newKeyName);
+      await GitSageAPI.generateApiKey(newKeyName);
       toast.success("New production key generated.");
       setNewKeyName("");
-      // Add the new key to the list temporarily if it handles a return, otherwise refetch
-      if (res?.key) {
-        // Most APIs return the full key only once. Let's refetch to get the updated status
-        await fetchKeys();
-      } else {
-        await fetchKeys();
-      }
+      await fetchKeys();
     } catch (err) {
-      // Handled by interceptor
     } finally {
       setIsCreating(false);
     }
@@ -76,8 +69,12 @@ export default function ApiKeysPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  // Derive counts dynamically
+  const activeCount = keys.filter(k => k.status === "active").length;
+  const revokedCount = keys.filter(k => k.status === "revoked").length;
+
   return (
-    <div className="space-y-8 sm:space-y-12">
+    <div className="space-y-8 sm:space-y-12 max-w-full overflow-hidden">
       {/* Page Header */}
       <section className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
         <div className="space-y-2">
@@ -86,15 +83,15 @@ export default function ApiKeysPage() {
               Identity Security
            </div>
            <h1 className="text-3xl sm:text-4xl font-bold font-outfit text-white">Advanced API Keys</h1>
-           <p className="text-slate-400 max-w-lg text-sm sm:text-base">Management layer for your GitSage authentication tokens. These keys authorize the CLI to communicate with our Intelligence Engine.</p>
+           <p className="text-slate-400 max-w-lg text-sm sm:text-base">Management layer for your GitSage authentication tokens.</p>
         </div>
       </section>
 
       {/* Stats row for keys */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Active Keys", value: keys.length, color: "text-sage" },
-          { label: "Revoked Keys", value: "0", color: "text-slate-500" },
+          { label: "Active Keys", value: activeCount, color: "text-sage" },
+          { label: "Revoked Keys", value: revokedCount, color: "text-red-400" },
           { label: "Global Reach", value: "12 Edge Nodes", color: "text-sky-400" },
           { label: "Security Level", value: "AES-256", color: "text-amber-400" },
         ].map((stat) => (
@@ -114,7 +111,7 @@ export default function ApiKeysPage() {
                <span className="text-[10px] text-slate-500 font-bold uppercase">{keys.length} Keys Found</span>
             </CardHeader>
             <CardContent className="divide-y divide-white/5 p-0">
-               {isLoading ? (
+               {isLoading && keys.length === 0 ? (
                  <div className="p-12 flex flex-col items-center justify-center gap-4 text-slate-500 animate-pulse">
                     <Terminal size={32} />
                     <p className="text-xs uppercase font-bold tracking-widest">Querying Identity Vault...</p>
@@ -132,9 +129,13 @@ export default function ApiKeysPage() {
                       <div className="space-y-1">
                          <div className="flex items-center gap-3">
                             <h4 className="font-bold text-white text-sm tracking-tight">{key.name}</h4>
-                            {key.status === "active" && <span className="px-2 py-0.5 rounded-full bg-sage/10 text-sage text-[9px] font-bold uppercase border border-sage/10">Active</span>}
+                            {key.status === "active" ? (
+                              <span className="px-2 py-0.5 rounded-full bg-sage/10 text-sage text-[9px] font-bold uppercase border border-sage/10">Active</span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full bg-red-400/10 text-red-400 text-[9px] font-bold uppercase border border-red-400/10">Revoked</span>
+                            )}
                          </div>
-                         <p className="text-xs font-mono text-slate-500">{key.prefix}••••••••••••••••••••</p>
+                         <p className="text-xs font-mono text-slate-500">{key.prefix || "••••"}••••••••••••••••••••</p>
                       </div>
                       <div className="flex items-center gap-4">
                          <div className="text-right hidden sm:block">
@@ -144,14 +145,16 @@ export default function ApiKeysPage() {
                          <div className="flex items-center gap-2 ml-auto">
                             <button 
                                onClick={() => copyToClipboard(`gs_live_${key.id}_secret`, key.id)}
-                               className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-slate-400 hover:text-white hover:border-white/10 transition-all"
+                               disabled={key.status !== "active"}
+                               className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-slate-400 hover:text-white hover:border-white/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                                title="Copy Key Prefix"
                             >
                                {copiedId === key.id ? <Check size={16} className="text-sage" /> : <Copy size={16} />}
                             </button>
                             <button 
                                onClick={() => handleRevokeKey(key.id)}
-                               className="p-2.5 rounded-xl bg-red-500/5 border border-red-500/10 text-red-500 hove:bg-red-500/20 transition-all opacity-20 group-hover:opacity-100"
+                               disabled={key.status !== "active"}
+                               className="p-2.5 rounded-xl bg-red-500/5 border border-red-500/10 text-red-500 hover:bg-red-500/20 transition-all opacity-20 group-hover:opacity-100 disabled:hidden"
                                title="Revoke Key"
                             >
                                <Trash2 size={16} />
