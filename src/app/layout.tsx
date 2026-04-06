@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://gitsage.dev"),
   title: {
     default: "GitSage — The Intelligence Layer for Git",
-    template: "%s | GitSage",
+    template: "%s | GitSage Intelligence",
   },
   description:
     "Stop writing commit messages. Start generating intelligence. GitSage uses advanced AI to analyze code changes and explain the intent, impact, and scope of every commit. Supports all major programming languages.",
@@ -23,14 +23,15 @@ export const metadata: Metadata = {
     type: "website",
     title: "GitSage — The Intelligence Layer for Git",
     description:
-      "AI-powered Git commit assistant that understands WHY you coded, not just WHAT you changed.",
+      "The Intelligence Layer for your Git workflow. Analyzing WHAT changed to explain WHY it matters.",
     siteName: "GitSage",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "GitSage - AI Powered Git Intelligence" }],
+    images: [{ url: "/api/og?title=GitSage%20Intelligence&description=The%20Intelligence%20Layer%20for%20your%20Git%20workflow.", width: 1200, height: 630, alt: "GitSage - AI Powered Git Intelligence" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "GitSage — The Intelligence Layer for Git",
-    images: ["/og-image.png"],
+    description: "The Intelligence Layer for your Git workflow. Analyzing WHAT changed to explain WHY it matters.",
+    images: ["/api/og?title=GitSage%20Intelligence&description=The%20Intelligence%20Layer%20for%20your%20Git%20workflow."],
   },
   icons: {
     icon: "/favicon.png",

@@ -5,6 +5,11 @@ import { BookOpen, Zap, Cpu, Settings, ArrowRight } from "lucide-react";
 export const metadata: Metadata = {
   title: "Documentation Overview",
   description: "Complete documentation for GitSage — the AI-powered Git commit assistant.",
+  openGraph: {
+    title: "The Sage's Toolkit | Documentation",
+    description: "Learn how to turn your Git history into an intelligence layer with AI-powered commit analysis.",
+    images: [{ url: "/api/og?title=Documentation%20Portal&description=Turn%20Git%20history%20into%20Intelligence" }],
+  }
 };
 
 const SECTIONS = [

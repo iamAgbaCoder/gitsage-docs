@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   title: "GitSage — Commit with Intelligence, Not Just Messages",
   description:
     "The production-grade Git Assistant that understands WHY you coded, not just WHAT you changed. AI-powered commit messages with GitSage Intelligence and Ollama.",
+  openGraph: {
+    title: "GitSage | Commit with Intelligence",
+    description: "The production-grade Git Assistant that understands WHY you coded, not just WHAT you changed.",
+    images: [{ url: "/api/og?title=Git%20Intelligence%20Layer&description=Commit%20with%20Intelligence%20not%20just%20messages" }],
+  }
 };
 
 const METRICS = [

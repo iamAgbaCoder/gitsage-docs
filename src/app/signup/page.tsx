@@ -16,7 +16,8 @@ export default function SignupPage() {
   const router = useRouter();
   const { signup, isLoading } = useAuth();
   const [formData, setFormData] = useState({
-    name: "",
+    first_name: "",
+    last_name: "",
     email: "",
     password: "",
   });
@@ -50,17 +51,28 @@ export default function SignupPage() {
           
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="First Name"
+                  placeholder="Sébastien"
+                  type="text"
+                  value={formData.first_name}
+                  onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                  leftIcon={<User size={16} />}
+                  required
+                />
+                <Input
+                  label="Last Name"
+                  placeholder="Sage"
+                  type="text"
+                  value={formData.last_name}
+                  onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                  leftIcon={<User size={16} />}
+                  required
+                />
+              </div>
               <Input
-                label="Full Name"
-                placeholder="Sébastien Sage"
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                leftIcon={<User size={16} />}
-                required
-              />
-              <Input
-                label="Work Email"
+                label="Work or Personal Email"
                 placeholder="commander@gitsage.dev"
                 type="email"
                 value={formData.email}

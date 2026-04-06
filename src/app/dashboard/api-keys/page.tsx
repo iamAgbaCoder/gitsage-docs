@@ -18,6 +18,7 @@ export default function ApiKeysPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [newKeyName, setNewKeyName] = useState("");
+  const [newlyGeneratedKey, setNewlyGeneratedKey] = useState<any | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,11 +45,22 @@ export default function ApiKeysPage() {
     if (!newKeyName.trim()) return;
     try {
       setIsCreating(true);
-      await GitSageAPI.generateApiKey(newKeyName);
-      toast.success("New production key generated.");
+      const res: any = await GitSageAPI.generateApiKey(newKeyName);
+      
+      // Pattern: { raw_key: "gs_...", id: "...", ... }
+      const secret = res?.raw_key || res?.key || res?.api_key || res?.secret;
+      const id = res?.id || res?.key_id;
+
+      if (secret) {
+        setNewlyGeneratedKey({ ...res, key: secret, id: id || "temp" });
+        if (id) GitSageAPI.vault.saveKey(id, secret);
+      }
+      
       setNewKeyName("");
+      toast.success("Intelligence Signature Signature Generated");
       await fetchKeys();
     } catch (err) {
+      console.error("[Keys] Key generation failed:", err);
     } finally {
       setIsCreating(false);
     }
@@ -62,10 +74,17 @@ export default function ApiKeysPage() {
     } catch (err) {}
   };
 
-  const copyToClipboard = (text: string, id: string) => {
+  const copyToClipboard = (text: string, id: string, type: "secret" | "id" = "secret") => {
+    if (!text || text.includes("undefined")) {
+      if (type === "secret") {
+        toast.error("Secret is masked for security. Create a new key to view full secret.");
+        return;
+      }
+    }
+    
     navigator.clipboard.writeText(text);
     setCopiedId(id);
-    toast.success("Copied to clipboard.");
+    toast.success(`${type === "secret" ? "Full Secret" : "Key ID"} copied to clipboard.`);
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -103,6 +122,88 @@ export default function ApiKeysPage() {
       </section>
 
       {/* Main Keys List */}
+      {/* Newly Generated Key Modal Overlay */}
+      <AnimatePresence>
+        {newlyGeneratedKey && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ zIndex: 9999 }}
+            className="fixed inset-0 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="w-full max-w-xl"
+            >
+              <Card variant="glow" className="p-8 border-sage/30 bg-[#0A0C10] relative overflow-hidden shadow-2xl shadow-sage/10">
+                <div className="absolute top-0 right-0 p-8 opacity-5 text-sage rotate-12"><Shield size={120} /></div>
+                
+                <div className="space-y-8 relative z-10">
+                   <div className="flex flex-col items-center text-center gap-4">
+                      <div className="w-16 h-16 rounded-full bg-sage/10 border border-sage/20 flex items-center justify-center text-sage">
+                         <div className="relative">
+                            <Shield size={32} />
+                            <motion.div 
+                               initial={{ scale: 0 }}
+                               animate={{ scale: 1 }}
+                               transition={{ delay: 0.3 }}
+                               className="absolute -top-1 -right-1 w-5 h-5 bg-sage rounded-full flex items-center justify-center text-black"
+                            >
+                               <Check size={12} strokeWidth={3} />
+                            </motion.div>
+                         </div>
+                      </div>
+                      <div className="space-y-2">
+                         <h3 className="text-2xl font-bold text-white font-outfit">Secret Key Security Signature</h3>
+                         <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">This is a one-time cryptographic reveal</p>
+                      </div>
+                   </div>
+
+                   <div className="p-6 bg-black/40 border border-white/5 rounded-2xl space-y-4">
+                      <div className="flex items-center justify-between">
+                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">{newlyGeneratedKey.name}</span>
+                         <span className="px-2 py-0.5 rounded-full bg-sage/10 text-sage text-[9px] font-bold uppercase border border-sage/10">Production-Ready</span>
+                      </div>
+                      
+                      <div className="relative group">
+                         <div className="absolute -inset-0.5 bg-gradient-to-r from-sage/20 to-sky-400/20 blur opacity-75 group-hover:opacity-100 transition duration-1000"></div>
+                         <code className="relative flex items-center justify-center min-h-[60px] w-full px-4 py-4 bg-black rounded-xl text-sage font-mono text-sm break-all text-center border border-white/10 select-all">
+                            {newlyGeneratedKey.key}
+                         </code>
+                      </div>
+                      
+                      <div className="p-4 bg-amber-500/5 border border-amber-500/10 rounded-xl">
+                         <p className="text-[10px] text-amber-500/80 font-medium leading-relaxed">
+                            <span className="font-bold">CAUTION:</span> Store this key in a secure vault (like GitHub Secrets or 1Password). Once this window is closed, the GitSage engine will purge the plain-text secret from its short-term memory forever.
+                         </p>
+                      </div>
+                   </div>
+                   
+                   <div className="flex gap-4">
+                      <Button 
+                        onClick={() => copyToClipboard(newlyGeneratedKey.key, newlyGeneratedKey.id, "secret")}
+                        className="flex-1 py-6 shadow-lg shadow-sage/20 font-bold uppercase tracking-widest text-[11px]"
+                      >
+                         <Copy size={16} className="mr-2" /> Copy Full Signature
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => setNewlyGeneratedKey(null)}
+                        className="px-8 bg-white/5 border border-white/10 hover:bg-white/10"
+                      >
+                         Securely Close
+                      </Button>
+                   </div>
+                </div>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <Card variant="glass" className="overflow-hidden">
@@ -144,10 +245,10 @@ export default function ApiKeysPage() {
                          </div>
                          <div className="flex items-center gap-2 ml-auto">
                             <button 
-                               onClick={() => copyToClipboard(`gs_live_${key.id}_secret`, key.id)}
+                               onClick={() => copyToClipboard(key.key || key.id, key.id, key.key ? "secret" : "id")}
                                disabled={key.status !== "active"}
                                className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-slate-400 hover:text-white hover:border-white/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                               title="Copy Key Prefix"
+                               title={key.key ? "Copy Secret Key" : "Copy Key ID"}
                             >
                                {copiedId === key.id ? <Check size={16} className="text-sage" /> : <Copy size={16} />}
                             </button>
@@ -210,3 +311,5 @@ export default function ApiKeysPage() {
     </div>
   );
 }
+
+

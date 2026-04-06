@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Key, Copy, Check, BarChart3, Zap, Activity, Info, ShieldCheck, Database, Globe, RefreshCw } from "lucide-react";
+import { Key, Copy, Check, BarChart3, Zap, Activity, Info, ShieldCheck, Database, Globe, RefreshCw, Shield } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -11,13 +12,33 @@ import { motion } from "framer-motion";
 
 export default function DashboardOverview() {
   const { user, refreshUser } = useAuth();
-  const [copied, setCopied] = useState(false);
   const [usage, setUsage] = useState<any>(null);
+  const [keys, setKeys] = useState<any[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [newKey, setNewKey] = useState<any | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchStats();
-    const interval = setInterval(fetchStats, 10000);
+    const handleSSO = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const ssoToken = params.get("token");
+      if (ssoToken) {
+        localStorage.setItem("gitsage_access_token", ssoToken);
+        window.history.replaceState({}, document.title, window.location.pathname);
+        await refreshUser();
+        toast.success("Identity synchronized via GitHub.");
+      }
+      
+      fetchStats();
+      fetchKeys();
+    };
+
+    handleSSO();
+    
+    const interval = setInterval(() => {
+       fetchStats();
+       fetchKeys();
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -25,30 +46,62 @@ export default function DashboardOverview() {
     try {
       const stats = await GitSageAPI.getUsageStats();
       setUsage(stats);
-    } catch (err) {
-      console.error("Failed to fetch usage stats");
+    } catch (err) {}
+  };
+
+  const fetchKeys = async () => {
+    try {
+      const data: any = await GitSageAPI.listApiKeys();
+      setKeys(Array.isArray(data) ? data : (data?.keys || []));
+    } catch (err) {}
+  };
+
+  const copyToClipboard = (text: string, id: string, type: "secret" | "id" = "secret") => {
+    if (!text || text.includes("undefined")) {
+      if (type === "secret") {
+        toast.error("Secret is masked for security. Create a new key to view full secret.");
+        return;
+      }
     }
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    toast.success(`${type === "secret" ? "Full Secret" : "Key ID"} copied to clipboard.`);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleCopyKey = () => {
-    if (user?.apiKey) {
-      navigator.clipboard.writeText(user.apiKey);
-      setCopied(true);
-      toast.success("API key copied to clipboard.");
-      setTimeout(() => setCopied(false), 2000);
+    const activeKey = keys.find(k => k.status === "active" || k.is_active);
+    const masterKey = user?.apiKey || (user as any)?.api_key || (user as any)?.raw_key || GitSageAPI.vault.getKey("master") || GitSageAPI.vault.getKey(activeKey?.id);
+    
+    if (masterKey && masterKey !== "no_key_found" && !masterKey.includes("•")) {
+       copyToClipboard(masterKey, "master", "secret");
+    } else if (activeKey?.id) {
+       copyToClipboard(activeKey.id, activeKey.id, "id");
     } else {
-      toast.error("No API key available to copy.");
+       toast.error("No active key found.");
     }
   };
 
   const handleGenerateKey = async () => {
     try {
       setIsGenerating(true);
-      await GitSageAPI.generateApiKey("Main Portal Key");
-      await refreshUser(); // Refresh user state to get the new key
-      toast.success("New API key generated successfully.");
+      const res: any = await GitSageAPI.generateApiKey("Main Portal Key");
+      
+      // Backend pattern: { data: { raw_key: "gs_...", id: "...", ... } }
+      const secret = res?.raw_key || res?.key || res?.api_key || res?.secret;
+      const id = res?.id || res?.key_id;
+
+      if (secret) {
+        const keyData = { ...res, key: secret, id: id || "master" };
+        setNewKey(keyData);
+        if (id) GitSageAPI.vault.saveKey(id, secret);
+        GitSageAPI.vault.saveKey("master", secret);
+      }
+      
+      await refreshUser(); // Refresh user state
+      toast.success("Master Intelligence Key Rotated");
     } catch (err) {
-      // Error handled by interceptor
+      console.error("[Dashboard] Key rotation failed:", err);
     } finally {
       setIsGenerating(false);
     }
@@ -70,8 +123,8 @@ export default function DashboardOverview() {
   };
 
   const stats = [
-    { label: "Token Usage", value: usage?.tokens_total || "0", icon: Database, color: "text-sky-400", bg: "bg-sky-400/10" },
-    { label: "Analyses", value: usage?.requests_count || "0", icon: Activity, color: "text-sage", bg: "bg-sage/10" },
+    { label: "Token Usage", value: usage?.total_tokens || "0", icon: Database, color: "text-sky-400", bg: "bg-sky-400/10" },
+    { label: "Analyses", value: usage?.total_requests || "0", icon: Activity, color: "text-sage", bg: "bg-sage/10" },
     { label: "Daily Limit", value: "100", icon: Globe, color: "text-purple-400", bg: "bg-purple-400/10" },
     { label: "Engine Status", value: "Active", icon: ShieldCheck, color: "text-amber-400", bg: "bg-amber-400/10" },
   ];
@@ -83,6 +136,87 @@ export default function DashboardOverview() {
       animate="visible"
       className="space-y-8 sm:space-y-12"
     >
+      {/* Newly Generated Key Modal Overlay */}
+      <AnimatePresence>
+        {newKey && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ zIndex: 9999 }}
+            className="fixed inset-0 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="w-full max-w-xl"
+            >
+              <Card variant="glow" className="p-8 border-sage/30 bg-[#0A0C10] relative overflow-hidden shadow-2xl shadow-sage/10">
+                <div className="absolute top-0 right-0 p-8 opacity-5 text-sage rotate-12"><Shield size={120} /></div>
+                
+                <div className="space-y-8 relative z-10">
+                   <div className="flex flex-col items-center text-center gap-4">
+                      <div className="w-16 h-16 rounded-full bg-sage/10 border border-sage/20 flex items-center justify-center text-sage">
+                         <div className="relative">
+                            <Shield size={32} />
+                            <motion.div 
+                               initial={{ scale: 0 }}
+                               animate={{ scale: 1 }}
+                               transition={{ delay: 0.3 }}
+                               className="absolute -top-1 -right-1 w-5 h-5 bg-sage rounded-full flex items-center justify-center text-black"
+                            >
+                               <Check size={12} strokeWidth={3} />
+                            </motion.div>
+                         </div>
+                      </div>
+                      <div className="space-y-2">
+                         <h3 className="text-2xl font-bold text-white font-outfit">Master Security Signature</h3>
+                         <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">This is a one-time cryptographic reveal</p>
+                      </div>
+                   </div>
+
+                   <div className="p-6 bg-black/40 border border-white/5 rounded-2xl space-y-4">
+                      <div className="flex items-center justify-between">
+                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">{newKey.name || "Master Key"}</span>
+                         <span className="px-2 py-0.5 rounded-full bg-sage/10 text-sage text-[9px] font-bold uppercase border border-sage/10">Root Access</span>
+                      </div>
+                      
+                      <div className="relative group">
+                         <div className="absolute -inset-0.5 bg-gradient-to-r from-sage/20 to-sky-400/20 blur opacity-75 group-hover:opacity-100 transition duration-1000"></div>
+                         <code className="relative flex items-center justify-center min-h-[60px] w-full px-4 py-4 bg-black rounded-xl text-sage font-mono text-sm break-all text-center border border-white/10 select-all">
+                            {newKey.key}
+                         </code>
+                      </div>
+                      
+                      <div className="p-4 bg-amber-500/5 border border-amber-500/10 rounded-xl">
+                         <p className="text-[10px] text-amber-500/80 font-medium leading-relaxed">
+                            <span className="font-bold">IMPORTANT:</span> This key will not be shown again. Save it immediately to your secure secrets manager.
+                         </p>
+                      </div>
+                   </div>
+                   
+                   <div className="flex gap-4">
+                      <Button 
+                        onClick={() => copyToClipboard(newKey.key, newKey.id || "new", "secret")}
+                        className="flex-1 py-6 shadow-lg shadow-sage/20 font-bold uppercase tracking-widest text-[11px]"
+                      >
+                         <Copy size={16} className="mr-2" /> Copy Master Key
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => setNewKey(null)}
+                        className="px-8 bg-white/5 border border-white/10 hover:bg-white/10"
+                      >
+                         Close
+                      </Button>
+                   </div>
+                </div>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Welcome Banner */}
       <motion.section variants={itemVariants} className="relative p-6 sm:p-10 glass-strong border border-sage/20 rounded-3xl overflow-hidden">
          <div className="absolute top-0 right-0 w-64 h-64 bg-sage/5 blur-[80px] -mr-32 -mt-32 rounded-full" />
@@ -142,18 +276,30 @@ export default function DashboardOverview() {
                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-1">Master Production Key</label>
                      <div className="flex items-center gap-2 p-2 rounded-xl bg-black/40 border border-white/5 font-fira text-xs sm:text-sm text-slate-400 shadow-inner">
                         <span className="flex-1 px-3 py-1 font-mono truncate">
-                          {(!user?.apiKey || user.apiKey === "no_key_found") ? (
-                            <span className="text-slate-600 italic">No master key located...</span>
-                          ) : (
-                            `gs_live_${user.apiKey.substring(0, 4)}••••${user.apiKey.substring(user.apiKey.length - 4)}`
-                          )}
+                          {(() => {
+                             const activeKey = keys.find(k => k.status === "active" || k.is_active);
+                             const raw = user?.apiKey || (user as any)?.api_key || (user as any)?.raw_key || GitSageAPI.vault.getKey("master") || GitSageAPI.vault.getKey(activeKey?.id);
+                             
+                             const isMasked = raw?.includes("•");
+                             const masterKey = isMasked ? GitSageAPI.vault.getKey("master") : raw;
+
+                             if (masterKey && masterKey !== "no_key_found") {
+                               return `gs_live_${masterKey.substring(0, 4)}••••${masterKey.substring(masterKey.length - 4)}`;
+                             }
+                             
+                             if (activeKey?.prefix) {
+                                return `${activeKey.prefix}••••••••`;
+                             }
+                             
+                             return <span className="text-slate-600 italic">No master key located in vault...</span>;
+                          })()}
                         </span>
                         <button 
                           onClick={handleCopyKey}
                           disabled={!user?.apiKey || user.apiKey === "no_key_found"}
                           className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-500 hover:text-sage transition-all border border-white/5 shrink-0 disabled:opacity-20"
                         >
-                          {copied ? <Check size={16} className="text-sage" /> : <Copy size={16} />}
+                          {copiedId === "master" ? <Check size={16} className="text-sage" /> : <Copy size={16} />}
                         </button>
                      </div>
                      <p className="text-[10px] text-slate-500 italic px-1">
@@ -191,20 +337,20 @@ export default function DashboardOverview() {
                           <p className="text-[10px] text-slate-500">Tier: Developer (Flash Engine)</p>
                        </div>
                        <span className="text-xl sm:text-2xl font-bold font-fira text-sage">
-                         {usage?.requests_count ? Math.round((usage.requests_count / 100) * 100) : 0}%
+                         {usage?.total_requests ? Math.round((usage.total_requests / 100) * 100) : 0}%
                        </span>
                     </div>
                     <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 p-[1px]">
                        <div 
                          className="h-full bg-gradient-to-r from-sage to-sky-500 rounded-full shadow-[0_0_15px_rgba(34,197,94,0.4)] transition-all duration-1000" 
-                         style={{ width: usage ? `${(usage.requests_count / 100) * 100}%` : '0%' }}
+                         style={{ width: usage ? `${(usage.total_requests / 100) * 100}%` : '0%' }}
                        />
                     </div>
                  </div>
 
                  <div className="grid grid-cols-2 gap-4 pt-8 sm:pt-10 border-t border-white/5">
                     <div className="space-y-1 px-2 sm:px-4 border-r border-white/5 text-center">
-                       <p className="text-xl sm:text-2xl font-bold text-white font-outfit">{usage?.requests_count || 0}</p>
+                       <p className="text-xl sm:text-2xl font-bold text-white font-outfit">{usage?.total_requests || 0}</p>
                        <p className="text-[8px] sm:text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em]">Requests Sent</p>
                     </div>
                     <div className="space-y-1 px-2 sm:px-4 text-center">

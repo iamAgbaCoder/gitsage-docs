@@ -20,20 +20,25 @@ export default function UsageStatsPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const fetchStats = async () => {
+  const fetchStats = async (force = false) => {
     try {
-      const data = await GitSageAPI.getUsageStats();
+      const data = await GitSageAPI.getUsageStats(force);
       setStats(data);
     } catch (err) {
-      console.error("Failed to fetch stats");
+      console.error("Failed to fetch stats:", err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const currentUsage = stats?.requests_count || 0;
+  const currentUsage = stats?.total_requests || 0;
   const limit = 100;
   const percentage = Math.min((currentUsage / limit) * 100, 100);
+
+  const formatLatency = (ms: number) => {
+    if (!ms) return "0ms";
+    return ms > 1000 ? `${(ms / 1000).toFixed(1)}s` : `${Math.round(ms)}ms`;
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -68,7 +73,7 @@ export default function UsageStatsPage() {
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={fetchStats}
+          onClick={() => fetchStats(true)}
           disabled={isLoading}
           className="w-full sm:w-auto"
         >
@@ -106,8 +111,8 @@ export default function UsageStatsPage() {
                  <div className="grid grid-cols-3 gap-4 pt-10 border-t border-white/5">
                     {[
                       { label: "Queries", value: currentUsage, suffix: "Total" },
-                      { label: "Avg Latency", value: "840ms", suffix: "Intelligence" },
-                      { label: "Token Pulse", value: stats?.tokens_total || "0", suffix: "Total Consumed" },
+                      { label: "Avg Latency", value: formatLatency(stats?.avg_response_time), suffix: "Intelligence" },
+                      { label: "Token Pulse", value: stats?.total_tokens || "0", suffix: "Total Consumed" },
                     ].map((m) => (
                       <div key={m.label} className="space-y-1">
                          <p className="text-2xl font-bold text-white font-outfit">{m.value}</p>
