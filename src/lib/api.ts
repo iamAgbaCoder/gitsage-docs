@@ -91,12 +91,19 @@ apiClient.interceptors.response.use(
       } else {
         toast.error(errorMessage);
       }
+    } else if (axios.isCancel(error)) {
+      // Silence cancellations (e.g. page navigation during request)
+      console.log("Request canceled:", error.message);
+    } else if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
+      // Only show network error if we're not navigating away
+      // This prevents "Network Error" toast during login redirects
+      if (typeof window !== "undefined" && !window.location.href.includes("/dashboard")) {
+         toast.error("Connectivity issue: The GitSage portal is having trouble reaching the API.");
+      }
     } else if (error.code === 'ECONNABORTED') {
-      toast.error("Request timed out. The engine is taking longer than expected.");
-    } else if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-      toast.error("Network Error: Could not reach GitSage API. Check your connection or CORS settings.");
+      toast.error("Connection timed out. The engine is under heavy load.");
     } else {
-      toast.error("API Error: " + error.message);
+      toast.error("API Error: " + (error.message || "Unknown Failure"));
     }
     
     return Promise.reject(error);
@@ -119,9 +126,10 @@ const Vault = {
     try {
       const currentVault = JSON.parse(localStorage.getItem(VAULT_KEY) || "{}");
       const secret = currentVault[id];
+      if (!secret && id === "master") return "no_key_found";
       return secret ? atob(secret) : null;
     } catch (e) {
-      return null;
+      return id === "master" ? "no_key_found" : null;
     }
   }
 };
@@ -173,7 +181,7 @@ export const GitSageAPI = {
     const token = data?.access_token || data?.token;
     if (token) {
       localStorage.setItem("gitsage_access_token", token);
-      clearCache(); // Clear cache on login
+      clearCache(); 
     }
     return data;
   },

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, Suspense } from "react";
+import React, { useEffect, Suspense, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RefreshCw, GitBranch } from "lucide-react";
 import { GitSageAPI } from "@/lib/api";
@@ -12,15 +12,18 @@ function GitHubCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { refreshUser } = useAuth();
+  const processedRef = useRef(false);
 
   useEffect(() => {
     const code = searchParams.get("code");
     
-    if (code) {
+    if (code && !processedRef.current) {
+      processedRef.current = true;
+      
       const handleSSO = async () => {
         try {
           // 1. Exchange the temporary GitHub code for a JWT via our backend
-          const res: any = await GitSageAPI.githubCallback(code);
+          await GitSageAPI.githubCallback(code);
           
           // 2. The API method already saves the token to localStorage. 
           // Now we sync the user state and profile.
@@ -38,7 +41,7 @@ function GitHubCallbackContent() {
       };
       
       handleSSO();
-    } else {
+    } else if (!code && !processedRef.current) {
       // No code in URL, redirect home
       router.replace("/login");
     }
