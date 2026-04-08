@@ -52,6 +52,11 @@ const clearCache = (url?: string) => {
 
 // Request Interceptor: Inject Auth Token or API Key + Protocol Enforcement
 apiClient.interceptors.request.use((config) => {
+  // Normalization: Ensure no trailing slashes to prevent protocol-downgrading redirects
+  if (config.url && config.url.length > 1 && config.url.endsWith("/")) {
+    config.url = config.url.slice(0, -1);
+  }
+
   // Protocol Enforcement: Ensure all production requests are HTTPS
   if (config.url && config.url.startsWith("http:") && !config.url.includes("localhost") && !config.url.includes("127.0.0.1")) {
     config.url = config.url.replace("http:", "https:");
@@ -285,7 +290,7 @@ export const GitSageAPI = {
   },
 
   generateApiKey: async (name: string = "Default Key") => {
-    const res: any = await apiClient.post("/v1/api-keys/", { name });
+    const res: any = await apiClient.post("/v1/api-keys", { name });
     
     // Aligned with backend: { data: { raw_key: "gs_...", id: "..." } }
     // Interceptor returns 'data' part.
