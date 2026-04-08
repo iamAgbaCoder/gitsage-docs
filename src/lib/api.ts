@@ -50,31 +50,16 @@ const clearCache = (url?: string) => {
   }
 };
 
-// Request Interceptor: Absolute Security + Protocol Enforcement + Cache Busting
+// Request Interceptor: Central Identity & Cache Management
 apiClient.interceptors.request.use((config) => {
-  // 1. Ensure Absolute Pathing to prevent redirect-memorization by browser
-  if (config.url && config.url.startsWith("/")) {
-    config.url = `${API_BASE_URL}${config.url}`;
-  }
-
-  // 2. Trailing Slash Stripping (Enforcement)
-  if (config.url && config.url.includes("?") ) {
-    const [path, query] = config.url.split("?");
-    if (path.endsWith("/") && path.length > 1) {
-       config.url = `${path.slice(0, -1)}?${query}`;
-    }
-  } else if (config.url && config.url.endsWith("/") && config.url.length > API_BASE_URL.length + 1) {
+  // 1. Force Remove Trailing Slashes (matches canonical spec)
+  if (config.url && config.url.length > 1 && config.url.endsWith("/")) {
     config.url = config.url.slice(0, -1);
   }
 
-  // 3. Cache Busting (Force Browser Refresh)
+  // 2. Cache Busting (Prevent browser from sticking on old results)
   if (config.method === 'get') {
-    config.params = { ...config.params, _cache: Date.now() };
-  }
-
-  // 4. Final Protocol Lock: Force HTTPS
-  if (config.url && config.url.startsWith("http:")) {
-    config.url = config.url.replace("http:", "https:");
+    config.params = { ...config.params, _t: Date.now() };
   }
 
   if (typeof window !== "undefined") {
