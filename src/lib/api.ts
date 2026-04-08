@@ -61,12 +61,12 @@ apiClient.interceptors.request.use((config) => {
     const token = localStorage.getItem("gitsage_access_token");
     const apiKey = localStorage.getItem("gitsage_api_key");
 
-    if (token && config.headers) {
-      config.headers.set("Authorization", `Bearer ${token}`);
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
     
-    if (apiKey && config.headers && (config.url?.includes("/intelligence") || config.url?.includes("/usage"))) {
-      config.headers.set("X-API-Key", apiKey);
+    if (apiKey && (config.url?.includes("/intelligence") || config.url?.includes("/usage"))) {
+      config.headers["X-API-Key"] = apiKey;
     }
   }
   return config;
@@ -106,12 +106,9 @@ apiClient.interceptors.response.use(
       errorMessage = data?.message || data?.error || data?.detail || errorMessage;
 
       if (status === 401) {
-        // Use backend message but ensure session is cleared locally
-        toast.error(errorMessage);
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("gitsage_access_token");
-          localStorage.removeItem("gitsage_api_key");
-        }
+        // We no longer clear localStorage here. 
+        // AuthContext.refreshUser() handles the retry and cleanup logic.
+        console.warn("[API] 401 Unauthorized detected.");
       } else if (status === 429) {
         toast.error("Rate limit exceeded. Slow down, sage.");
       } else if (status >= 500) {
