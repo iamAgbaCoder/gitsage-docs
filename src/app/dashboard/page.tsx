@@ -71,14 +71,24 @@ export default function DashboardOverview() {
 
   const handleCopyKey = () => {
     const activeKey = keys.find(k => k.status === "active" || k.is_active);
-    const masterKey = user?.apiKey || (user as any)?.api_key || (user as any)?.raw_key || GitSageAPI.vault.getKey("master") || GitSageAPI.vault.getKey(activeKey?.id);
+    
+    // Check all possible sources for the secret, prioritizing the Vault
+    const vaultMaster = GitSageAPI.vault.getKey("master");
+    const vaultById = activeKey?.id ? GitSageAPI.vault.getKey(activeKey.id) : null;
+    
+    const rawValue = user?.apiKey || (user as any)?.api_key || (user as any)?.raw_key;
+    const isMasked = rawValue?.includes("•") || !rawValue;
+    
+    const masterKey = (!isMasked ? rawValue : null) || vaultMaster || vaultById;
     
     if (masterKey && masterKey !== "no_key_found" && !masterKey.includes("•")) {
        copyToClipboard(masterKey, "master", "secret");
     } else if (activeKey?.id) {
-       copyToClipboard(activeKey.id, activeKey.id, "id");
+       // Only copy ID as fallback, but warn the user
+       toast.error("Secret key is encrypted for security. Copying the Key ID instead.");
+       copyToClipboard(activeKey.id, "master", "id");
     } else {
-       toast.error("No active key found.");
+       toast.error("No intelligence signature found. Please rotate your key.");
     }
   };
 

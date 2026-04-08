@@ -75,16 +75,18 @@ export default function ApiKeysPage() {
   };
 
   const copyToClipboard = (text: string, id: string, type: "secret" | "id" = "secret") => {
-    if (!text || text.includes("undefined")) {
-      if (type === "secret") {
-        toast.error("Secret is masked for security. Create a new key to view full secret.");
-        return;
-      }
+    // Prioritize vault secret if available
+    const vaultSecret = GitSageAPI.vault.getKey(id);
+    const finalSecret = vaultSecret || text;
+
+    if (!finalSecret || finalSecret === "no_key_found" || finalSecret.includes("undefined") || finalSecret.includes("•")) {
+      toast.error("Signature data is unavailable. Please synchronize your session.");
+      return;
     }
     
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(finalSecret);
     setCopiedId(id);
-    toast.success(`${type === "secret" ? "Full Secret" : "Key ID"} copied to clipboard.`);
+    toast.success(`${type === "secret" ? "Intelligence Signature" : "Key ID"} copied to clipboard.`);
     setTimeout(() => setCopiedId(null), 2000);
   };
 

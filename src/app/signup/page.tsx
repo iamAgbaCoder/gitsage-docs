@@ -80,15 +80,33 @@ export default function SignupPage() {
                 leftIcon={<Mail size={16} />}
                 required
               />
-              <Input
-                label="Secret Key (Password)"
-                placeholder="••••••••"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                leftIcon={<Lock size={16} />}
-                required
-              />
+              <div className="space-y-1">
+                <Input
+                  label="Secret Key (Password)"
+                  placeholder="••••••••"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  leftIcon={<Lock size={16} />}
+                  required
+                />
+                <div className="flex gap-1 h-1 mt-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div 
+                      key={i} 
+                      className={`flex-1 rounded-full transition-all duration-500 ${
+                        formData.password.length === 0 ? "bg-white/5" :
+                        formData.password.length < 6 ? (i <= 1 ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]" : "bg-white/5") :
+                        formData.password.length < 10 ? (i <= 2 ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]" : "bg-white/5") :
+                        (i <= 4 ? "bg-sage shadow-[0_0_8px_rgba(34,197,94,0.4)]" : "bg-white/5")
+                      }`}
+                    />
+                  ))}
+                </div>
+                {formData.password.length > 0 && formData.password.length < 8 && (
+                   <p className="text-[9px] text-amber-500/70 font-bold uppercase tracking-widest px-1 mt-1">Recommendation: Use 8+ characters</p>
+                )}
+              </div>
 
               <Button type="submit" className="w-full mt-2" isLoading={isLoading}>
                 <UserPlus size={16} /> Request Account Access
