@@ -1,5 +1,4 @@
 import { ImageResponse } from "next/og";
-// @ts-ignore
 export const runtime = "edge";
 
 export async function GET(request: Request) {
@@ -20,121 +19,124 @@ export async function GET(request: Request) {
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: "#020617",
-          backgroundImage: "radial-gradient(circle at 50% 50%, #22c55e10 0%, #030712 100%)",
+          backgroundImage: "radial-gradient(circle at 50% 50%, #22c55e08 0%, #030712 100%)",
           padding: "60px",
           fontFamily: "sans-serif",
           position: "relative",
         }}
       >
-        {/* Subtle Grid Pattern Overlay */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage: "linear-gradient(#ffffff05 1px, transparent 1px), linear-gradient(90deg, #ffffff05 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-            opacity: 0.3,
-          }}
-        />
+        {/* Cinematic Mesh Glows */}
+        <div style={{ position: "absolute", top: "-100px", left: "-100px", width: "400px", height: "400px", borderRadius: "50%", background: "#22c55e10", filter: "blur(80px)" }} />
+        <div style={{ position: "absolute", bottom: "-100px", right: "-100px", width: "450px", height: "450px", borderRadius: "50%", background: "#0ea5e908", filter: "blur(80px)" }} />
 
-        {/* Branding */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "20px",
-            marginBottom: "40px",
-            zIndex: 10,
-          }}
-        >
-          <div
-            style={{
-              width: "80px",
-              height: "80px",
-              borderRadius: "50%",
-              backgroundColor: "#22c55e",
-              boxShadow: "0 0 40px rgba(34, 197, 94, 0.4)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-              fontSize: "40px",
-              fontWeight: "900",
-            }}
-          >
-            GS
-          </div>
-          <span
-            style={{
-              fontSize: "80px",
-              fontWeight: "bold",
-              color: "white",
-              letterSpacing: "-0.05em",
-            }}
-          >
-            GitSage
-          </span>
-        </div>
-
-        {/* Content */}
+        {/* Browser Window Frame */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
-            maxWidth: "900px",
-            zIndex: 10,
+            width: "1000px",
+            height: "500px",
+            backgroundColor: "rgba(15, 23, 42, 0.8)",
+            borderRadius: "32px",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            boxShadow: "0 40px 100px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(34, 197, 94, 0.1)",
+            overflow: "hidden",
+            position: "relative",
           }}
         >
-          <h1
+          {/* Window Header */}
+          <div
             style={{
-              fontSize: "64px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "24px 32px",
+              borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+              backgroundColor: "rgba(0, 0, 0, 0.2)",
+            }}
+          >
+            <div style={{ display: "flex", gap: "8px" }}>
+              <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#ef4444" }} />
+              <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#f59e0b" }} />
+              <div style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#22c55e" }} />
+            </div>
+            <div style={{ fontSize: "14px", fontWeight: "bold", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.2em" }}>
+              Intelligence Portal / {title.split(" ")[0]}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "#22c55e", fontSize: "14px", fontWeight: "bold" }}>
+              <div style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#22c55e" }} />
+              SECURE
+            </div>
+          </div>
+
+          {/* Window Content */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              padding: "60px",
+              flex: 1,
+            }}
+          >
+            {/* Branding Accent */}
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "32px" }}>
+               <div style={{ width: "32px", height: "32px", borderRadius: "8px", backgroundColor: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "16px", fontWeight: "bold" }}>G</div>
+               <span style={{ fontSize: "18px", color: "white", fontWeight: "bold", letterSpacing: "-0.02em" }}>GitSage Intelligence</span>
+            </div>
+
+            <h1
+              style={{
+                fontSize: "72px",
+                fontWeight: "900",
+                color: "white",
+                marginBottom: "20px",
+                lineHeight: 1.05,
+                letterSpacing: "-0.05em",
+                backgroundImage: "linear-gradient(to bottom right, #fff 30%, #94a3b8)",
+                backgroundClip: "text",
+              }}
+            >
+              {title}
+            </h1>
+            <p
+              style={{
+                fontSize: "32px",
+                color: "#64748b",
+                lineHeight: 1.5,
+                maxWidth: "800px",
+                fontWeight: "500",
+              }}
+            >
+              {description}
+            </p>
+          </div>
+
+          {/* Code Artifact Footer */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: "32px",
+              left: "60px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "8px 16px",
+              backgroundColor: "rgba(34, 197, 94, 0.1)",
+              borderRadius: "12px",
+              color: "#22c55e",
+              fontSize: "12px",
               fontWeight: "bold",
-              color: "white",
-              marginBottom: "24px",
-              lineHeight: 1.1,
-              letterSpacing: "-0.02em",
+              fontFamily: "monospace",
+              letterSpacing: "0.05em",
             }}
           >
-            {title}
-          </h1>
-          <p
-            style={{
-              fontSize: "28px",
-              color: "#94a3b8",
-              lineHeight: 1.6,
-              maxWidth: "700px",
-            }}
-          >
-            {description}
-          </p>
+            $ gitsage analyze --live
+          </div>
         </div>
 
-        {/* Footer info: Command Palette style */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: "60px",
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            padding: "16px 24px",
-            backgroundColor: "rgba(255,255,255,0.03)",
-            borderRadius: "20px",
-            border: "1px solid rgba(255,255,255,0.05)",
-            color: "#22c55e",
-            fontSize: "18px",
-            fontWeight: "bold",
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            zIndex: 10,
-          }}
-        >
-          <span style={{ color: "white", opacity: 0.5 }}>$</span> gitsage login --open
+        {/* Global Branding Accent */}
+        <div style={{ position: "absolute", bottom: "40px", fontSize: "12px", color: "rgba(255,255,255,0.2)", letterSpacing: "0.4em", textTransform: "uppercase" }}>
+          Proprietary Intelligence Protocol v2.5
         </div>
       </div>
     ),

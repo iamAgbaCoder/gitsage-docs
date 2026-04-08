@@ -250,7 +250,7 @@ export default function HomePage() {
 
             <div className="relative">
               <div className="absolute -inset-10 bg-purple-500/5 blur-[100px] rounded-full pointer-events-none" />
-              <div className="mb-4 text-xs font-fira text-slate-500">// Try the live terminal below</div>
+              <div className="mb-4 text-xs font-fira text-slate-500">{"// Try the live terminal below"}</div>
               <LiveTerminal />
             </div>
           </div>
