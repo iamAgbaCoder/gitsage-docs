@@ -92,18 +92,29 @@ apiClient.interceptors.response.use(
         toast.error(errorMessage);
       }
     } else if (axios.isCancel(error)) {
-      // Silence cancellations (e.g. page navigation during request)
-      console.log("Request canceled:", error.message);
+      // Completely silent for cancellations (expected during route changes)
+      console.log("[API] Request aborted safely.");
     } else if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
-      // Only show network error if we're not navigating away
-      // This prevents "Network Error" toast during login redirects
-      if (typeof window !== "undefined" && !window.location.href.includes("/dashboard")) {
-         toast.error("Connectivity issue: The GitSage portal is having trouble reaching the API.");
+      // Network errors during redirects or rapid transitions should not toast.
+      // We only toast if it's likely a persistent connection issue.
+      console.error("[API] Network Connectivity Error:", error);
+      
+      // Heuristic: If we have a token but no user yet, we might be in a redirect.
+      // In that case, we silence the potential "Network Error" caused by the browser canceling the fetch.
+      const isTransitional = typeof window !== "undefined" && 
+        (window.location.pathname.includes("/auth/callback") || 
+         window.location.pathname.includes("/login") || 
+         window.location.pathname.includes("/signup"));
+
+      if (!isTransitional) {
+        toast.error("The GitSage portal is having trouble reaching the API. Please check your connection.");
       }
     } else if (error.code === 'ECONNABORTED') {
-      toast.error("Connection timed out. The engine is under heavy load.");
+      toast.error("GitSage Engine Timeout: The request took too long.");
     } else {
-      toast.error("API Error: " + (error.message || "Unknown Failure"));
+      // Fallback for other errors (only toast if not a cancellation)
+      const msg = error.message || "Unknown API Error";
+      toast.error(msg);
     }
     
     return Promise.reject(error);
