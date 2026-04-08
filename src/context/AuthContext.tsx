@@ -19,15 +19,23 @@ interface AuthContextType {
   login: (userData: any) => Promise<void>;
   signup: (userData: any) => Promise<void>;
   logout: () => void;
-  refreshUser: () => Promise<void>;
+  refreshUser: (retry?: boolean) => Promise<User | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  
+  // Initialize loading as true if we have a token to fetch, otherwise false
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !!localStorage.getItem("gitsage_access_token");
+    }
+    return true;
+  });
 
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("gitsage_access_token") : null;
@@ -38,12 +46,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // Friendly Error Mapping Utility
+  const getFriendlyError = (error: any) => {
+    const data = error.response?.data;
+    const detail = data?.detail || data?.message || data?.error;
+    
+    // Technical to User-Friendly mapping
+    if (typeof detail === 'string') {
+      if (detail.includes("invalid-credentials") || detail.toLowerCase().includes("credentials")) 
+        return "Incorrect email or password. Please try again.";
+      if (detail.includes("user-not-found")) 
+        return "We couldn't find an account with that email.";
+      if (detail.includes("already-exists") || detail.toLowerCase().includes("already registered")) 
+        return "This email is already linked to a GitSage account.";
+      if (detail.includes("invalid-token") || detail.includes("expired")) 
+        return "Your session has expired. Please sign in again.";
+      return detail;
+    }
+    
+    // Handle Pydantic/FastAPI list of errors
+    if (Array.isArray(detail) && detail[0]?.msg) {
+      return detail[0].msg;
+    }
+
+    return "Identity verification failed. Please check your connection.";
+  };
+
   const refreshUser = async (retry = true) => {
     try {
       setIsLoading(true);
       const data = await GitSageAPI.getProfile() as any;
       
-      // Map backend fields to frontend User interface
       const mappedUser: User = {
         ...data,
         id: data.id || data.usr_id,
@@ -54,13 +87,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       console.log("[Auth] User Profile Refreshed:", { id: mappedUser.id });
       setUser(mappedUser);
-      
-      if (mappedUser.apiKey) {
-        localStorage.setItem("gitsage_api_key", mappedUser.apiKey);
-        GitSageAPI.vault.saveKey("master", mappedUser.apiKey);
-      }
+      return mappedUser;
     } catch (error: any) {
-      // If 401, retry once after a small delay to handle session propagation race conditions in prod
       if (retry && error.response?.status === 401) {
         console.warn("[Auth] 401 on profile refresh, retrying in 1.5s...");
         await new Promise(r => setTimeout(r, 1500));
@@ -72,6 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem("gitsage_access_token");
         localStorage.removeItem("gitsage_api_key");
       }
+      return null;
     } finally {
       setIsLoading(false);
     }
@@ -81,26 +110,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const data: any = await GitSageAPI.login(credentials);
-      
-      // Handle different token naming conventions (standard OAuth vs spec)
       const token = data?.access_token || data?.token;
-      if (token) {
-        localStorage.setItem("gitsage_access_token", token);
-      }
+      if (token) localStorage.setItem("gitsage_access_token", token);
 
-      // If user profile is included in login response, use it. 
-      // Otherwise, trigger refreshUser to fetch it from /me
       if (data?.user) {
         setUser(data.user);
-        if (data.user.apiKey) {
-          localStorage.setItem("gitsage_api_key", data.user.apiKey);
-        }
         toast.success(`Welcome back, ${(data.user?.name || "Member").split(' ')[0]}.`);
       } else {
         await refreshUser();
         toast.success("Identity verified successfully.");
       }
-    } catch (error) {
+    } catch (error: any) {
+      toast.error(getFriendlyError(error));
       throw error;
     } finally {
       setIsLoading(false);
@@ -111,23 +132,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const data: any = await GitSageAPI.signup(userData);
-      
       const token = data?.access_token || data?.token;
-      if (token) {
-        localStorage.setItem("gitsage_access_token", token);
-      }
+      if (token) localStorage.setItem("gitsage_access_token", token);
 
       if (data?.user) {
         setUser(data.user);
-        if (data.user.apiKey) {
-          localStorage.setItem("gitsage_api_key", data.user.apiKey);
-        }
         toast.success("Account created successfully!");
       } else {
         await refreshUser();
         toast.success("Portal access granted.");
       }
-    } catch (error) {
+    } catch (error: any) {
+      toast.error(getFriendlyError(error));
       throw error;
     } finally {
       setIsLoading(false);
