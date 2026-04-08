@@ -50,11 +50,16 @@ const clearCache = (url?: string) => {
   }
 };
 
-// Request Interceptor: Inject Auth Token or API Key + Protocol Enforcement
+// Request Interceptor: Inject Auth Token or API Key + Protocol Enforcement + Cache Busting
 apiClient.interceptors.request.use((config) => {
   // Normalization: Ensure no trailing slashes to prevent protocol-downgrading redirects
   if (config.url && config.url.length > 1 && config.url.endsWith("/")) {
     config.url = config.url.slice(0, -1);
+  }
+
+  // Cache Busting: Prevent browser from remembering old insecure redirects (301/307)
+  if (config.method === 'get') {
+    config.params = { ...config.params, _v: Date.now() };
   }
 
   // Protocol Enforcement: Ensure all production requests are HTTPS

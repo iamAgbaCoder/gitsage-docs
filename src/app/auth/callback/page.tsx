@@ -25,13 +25,10 @@ function GitHubCallbackContent() {
           // 1. Exchange the temporary GitHub code for a JWT via our backend
           await GitSageAPI.githubCallback(code);
           
-          // 2. The API method already saves the token to localStorage. 
-          // Now we sync the user state and profile.
-          await refreshUser();
-          
           toast.success("GitHub identity authenticated.");
           
-          // 3. Landing at the intelligence operations center
+          // 2. Landing at the intelligence operations center
+          // The Dashboard layout automatically handles refreshUser() on mount.
           router.push("/dashboard");
         } catch (err) {
           console.error("SSO Callback Error:", err);
