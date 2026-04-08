@@ -50,8 +50,13 @@ const clearCache = (url?: string) => {
   }
 };
 
-// Request Interceptor: Inject Auth Token or API Key
+// Request Interceptor: Inject Auth Token or API Key + Protocol Enforcement
 apiClient.interceptors.request.use((config) => {
+  // Protocol Enforcement: Ensure all production requests are HTTPS
+  if (config.url && config.url.startsWith("http:") && !config.url.includes("localhost") && !config.url.includes("127.0.0.1")) {
+    config.url = config.url.replace("http:", "https:");
+  }
+
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("gitsage_access_token");
     const apiKey = localStorage.getItem("gitsage_api_key");
@@ -214,7 +219,7 @@ export const GitSageAPI = {
    * AUTHENTICATION
    */
   login: async (payload: AuthPayload) => {
-    const data = await apiClient.post("/v1/auth/login/", payload) as any;
+    const data = await apiClient.post("/v1/auth/login", payload) as any;
     const token = data?.access_token || data?.token;
     if (token) {
       localStorage.setItem("gitsage_access_token", token);
@@ -224,7 +229,7 @@ export const GitSageAPI = {
   },
 
   signup: async (payload: AuthPayload) => {
-    const data = await apiClient.post("/v1/auth/signup/", payload) as any;
+    const data = await apiClient.post("/v1/auth/signup", payload) as any;
     const token = data?.access_token || data?.token;
     if (token) {
       localStorage.setItem("gitsage_access_token", token);
@@ -234,18 +239,18 @@ export const GitSageAPI = {
   },
 
   forgotPassword: async (email: string) => {
-    return await apiClient.post("/v1/auth/forgot-password/", { email });
+    return await apiClient.post("/v1/auth/forgot-password", { email });
   },
 
   resetPassword: async (token: string, newPassword: string) => {
-    return await apiClient.post("/v1/auth/reset-password/", { 
+    return await apiClient.post("/v1/auth/reset-password", { 
       token, 
       new_password: newPassword 
     });
   },
 
   githubCallback: async (code: string) => {
-    const data: any = await apiClient.get(`/v1/auth/github/callback/?code=${code}`);
+    const data: any = await apiClient.get(`/v1/auth/github/callback?code=${code}`);
     const token = data?.access_token || data?.token;
     if (token) {
       localStorage.setItem("gitsage_access_token", token);
@@ -254,14 +259,14 @@ export const GitSageAPI = {
     return data;
   },
 
-  getGitHubAuthUrl: () => `${API_BASE_URL}/v1/auth/github/`,
+  getGitHubAuthUrl: () => `${API_BASE_URL}/v1/auth/github`,
 
   /**
    * API KEY MANAGEMENT
    */
   listApiKeys: async () => {
     // We don't cache keys to ensure revocation visibility
-    const keys: any = await apiClient.get("/v1/api-keys/");
+    const keys: any = await apiClient.get("/v1/api-keys");
     
     // Enrich with vault if possible
     if (Array.isArray(keys)) {
@@ -297,7 +302,7 @@ export const GitSageAPI = {
   },
 
   revokeApiKey: async (id: string) => {
-    const res = await apiClient.delete(`/v1/api-keys/${id}/`);
+    const res = await apiClient.delete(`/v1/api-keys/${id}`);
     clearCache(); // Ensure fresh state
     return res;
   },
@@ -306,22 +311,22 @@ export const GitSageAPI = {
    * CORE INTELLIGENCE (CLI Endpoints)
    */
   analyzeDiff: async (payload: AnalyzePayload) => {
-    return await apiClient.post("/v1/intelligence/analyze/", payload);
+    return await apiClient.post("/v1/intelligence/analyze", payload);
   },
 
   /**
    * USAGE & QUOTAS
    */
   getUsageStats: async (forceRefresh = false) => {
-    if (forceRefresh) clearCache("/v1/usage/stats/");
-    return await GitSageAPI.fetchWithCache("/v1/usage/stats/");
+    if (forceRefresh) clearCache("/v1/usage/stats");
+    return await GitSageAPI.fetchWithCache("/v1/usage/stats");
   },
 
   /**
    * PROFILE
    */
   getProfile: async () => {
-    return await GitSageAPI.fetchWithCache("/v1/auth/me/", 10 * 60 * 1000); // 10 min cache for profile
+    return await GitSageAPI.fetchWithCache("/v1/auth/me", 10 * 60 * 1000); // 10 min cache for profile
   },
 };
 
