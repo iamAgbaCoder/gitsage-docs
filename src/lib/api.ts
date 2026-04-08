@@ -50,14 +50,9 @@ const clearCache = (url?: string) => {
   }
 };
 
-// Request Interceptor: Central Identity & Cache Management
+// Request Interceptor: Inject Auth Token or API Key + Cache Busting
 apiClient.interceptors.request.use((config) => {
-  // 1. Force Remove Trailing Slashes (matches canonical spec)
-  if (config.url && config.url.length > 1 && config.url.endsWith("/")) {
-    config.url = config.url.slice(0, -1);
-  }
-
-  // 2. Cache Busting (Prevent browser from sticking on old results)
+  // 1. Cache Busting (Force browser to bypass its memory of old results)
   if (config.method === 'get') {
     config.params = { ...config.params, _t: Date.now() };
   }

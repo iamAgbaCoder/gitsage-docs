@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { GitSageAPI } from "@/lib/api";
 import { toast } from "react-hot-toast";
 
@@ -24,6 +25,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -137,6 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("gitsage_api_key");
     setUser(null);
     toast.success("Safely disconnected.");
+    router.push("/login");
   };
 
   return (
