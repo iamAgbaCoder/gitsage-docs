@@ -8,7 +8,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "The Sage's Toolkit | Documentation",
     description: "Learn how to turn your Git history into an intelligence layer with AI-powered commit analysis.",
-    images: [{ url: "/api/og?title=Documentation%20Portal&description=Turn%20Git%20history%20into%20Intelligence" }],
+    images: [{ url: "/og-image.png" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/og-image.png"],
   }
 };
 

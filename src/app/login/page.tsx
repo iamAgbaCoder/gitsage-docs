@@ -22,7 +22,7 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       await login({ email, password });
-      window.location.href = "/dashboard";
+      router.push("/dashboard");
     } catch (err) {
       // Error handled by AuthContext/Interceptor
     }

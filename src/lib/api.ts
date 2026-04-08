@@ -13,15 +13,40 @@ const apiClient = axios.create({
   timeout: 60000, 
 });
 
-// --- Simple Cache System ---
-const apiCache: Record<string, { data: any; timestamp: number }> = {};
+// --- Persistent Cache System (Hybrid Memory + SessionStorage) ---
+let apiCache: Record<string, { data: any; timestamp: number }> = {};
+
+if (typeof window !== "undefined") {
+  try {
+    const persisted = sessionStorage.getItem("gitsage_cache");
+    if (persisted) apiCache = JSON.parse(persisted);
+  } catch (e) {
+    apiCache = {};
+  }
+}
+
 const DEFAULT_CACHE_TTL = 5 * 60 * 1000; // 5 minutes default
+
+const saveCacheToDisk = () => {
+  if (typeof window !== "undefined") {
+    try {
+      sessionStorage.setItem("gitsage_cache", JSON.stringify(apiCache));
+    } catch (e) {
+      console.warn("[Cache] Storage limit reached, continuing in memory.");
+    }
+  }
+};
 
 const clearCache = (url?: string) => {
   if (url) {
     delete apiCache[url];
   } else {
-    Object.keys(apiCache).forEach(key => delete apiCache[key]);
+    apiCache = {};
+  }
+  
+  if (typeof window !== "undefined") {
+    sessionStorage.removeItem("gitsage_cache");
+    if (url) saveCacheToDisk(); // Update disk if only one key removed
   }
 };
 
@@ -174,6 +199,7 @@ export const GitSageAPI = {
     
     const data = await apiClient.get(url);
     apiCache[url] = { data, timestamp: now };
+    saveCacheToDisk();
     return data;
   },
 

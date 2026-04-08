@@ -26,7 +26,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "GitSage | Commit with Intelligence",
     description: "The production-grade Git Assistant that understands WHY you coded, not just WHAT you changed.",
-    images: [{ url: "/api/og?title=Git%20Intelligence%20Layer&description=Commit%20with%20Intelligence%20not%20just%20messages" }],
+    images: [{ url: "/og-image.png" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/og-image.png"],
   }
 };
 

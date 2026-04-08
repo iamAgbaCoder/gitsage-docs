@@ -50,11 +50,15 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Authentication Redirect
+  // Authentication Redirect - Hardened Guard
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/login");
-    }
+    const checkAuth = () => {
+      const token = localStorage.getItem("gitsage_access_token");
+      if (!isLoading && !user && !token) {
+        router.push("/login");
+      }
+    };
+    checkAuth();
   }, [user, isLoading, router]);
 
   if (isLoading) {

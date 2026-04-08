@@ -26,7 +26,7 @@ export default function SignupPage() {
     e.preventDefault();
     try {
       await signup(formData);
-      window.location.href = "/dashboard";
+      router.push("/dashboard");
     } catch (err) {
       // Handled by AuthContext/Interceptor
     }

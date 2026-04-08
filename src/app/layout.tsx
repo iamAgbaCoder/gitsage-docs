@@ -25,13 +25,13 @@ export const metadata: Metadata = {
     description:
       "The Intelligence Layer for your Git workflow. Analyzing WHAT changed to explain WHY it matters.",
     siteName: "GitSage",
-    images: [{ url: "/api/og?title=GitSage%20Intelligence&description=The%20Intelligence%20Layer%20for%20your%20Git%20workflow.", width: 1200, height: 630, alt: "GitSage - AI Powered Git Intelligence" }],
+    images: [{ url: "/og-image.png" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "GitSage — The Intelligence Layer for Git",
     description: "The Intelligence Layer for your Git workflow. Analyzing WHAT changed to explain WHY it matters.",
-    images: ["/api/og?title=GitSage%20Intelligence&description=The%20Intelligence%20Layer%20for%20your%20Git%20workflow."],
+    images: ["/og-image.png"],
   },
   icons: {
     icon: "/favicon.png",
