@@ -22,7 +22,7 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       await login({ email, password });
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
     } catch (err) {
       // Error handled by AuthContext/Interceptor
     }
@@ -83,16 +83,16 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <Button variant="secondary" className="w-full text-xs">
+            <div className="mt-6 grid grid-cols-1 gap-3">
+              {/* <Button variant="secondary" className="w-full text-xs">
                 <FaGoogle className="text-red-400" /> Google
-              </Button>
+              </Button> */}
               <Button 
                 variant="secondary" 
                 className="w-full text-xs" 
                 onClick={() => window.location.href = GitSageAPI.getGitHubAuthUrl()}
               >
-                <FaGithub /> GitHub
+                <FaGithub /> GitHub Identity Connection
               </Button>
             </div>
           </CardContent>

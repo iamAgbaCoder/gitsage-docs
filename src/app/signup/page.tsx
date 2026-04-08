@@ -26,7 +26,7 @@ export default function SignupPage() {
     e.preventDefault();
     try {
       await signup(formData);
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
     } catch (err) {
       // Handled by AuthContext/Interceptor
     }
@@ -102,16 +102,16 @@ export default function SignupPage() {
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <Button variant="secondary" className="w-full text-xs">
+            <div className="mt-6 grid grid-cols-1 gap-3">
+              {/* <Button variant="secondary" className="w-full text-xs">
                 <FaGoogle className="text-red-400" /> Google
-              </Button>
+              </Button> */}
               <Button 
                 variant="secondary" 
                 className="w-full text-xs" 
                 onClick={() => window.location.href = GitSageAPI.getGitHubAuthUrl()}
               >
-                <FaGithub /> GitHub
+                <FaGithub /> Connect GitHub Identity
               </Button>
             </div>
           </CardContent>

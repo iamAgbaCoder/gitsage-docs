@@ -32,18 +32,18 @@ function GitHubCallbackContent() {
           toast.success("GitHub identity authenticated.");
           
           // 3. Landing at the intelligence operations center
-          router.replace("/dashboard");
+          window.location.href = "/dashboard";
         } catch (err) {
           console.error("SSO Callback Error:", err);
           toast.error("Failed to verify GitHub signature.");
-          router.replace("/login");
+          window.location.href = "/login";
         }
       };
       
       handleSSO();
     } else if (!code && !processedRef.current) {
       // No code in URL, redirect home
-      router.replace("/login");
+      window.location.href = "/login";
     }
   }, [searchParams, router, refreshUser]);
 
