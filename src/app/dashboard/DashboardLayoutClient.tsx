@@ -52,14 +52,16 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
 
   // Authentication Redirect - Hardened Guard
   useEffect(() => {
-    const checkAuth = () => {
+    // Small delay to allow AuthContext to stabilize token from localStorage/SSO callback
+    const timer = setTimeout(() => {
       const token = localStorage.getItem("gitsage_access_token");
-      if (!isLoading && !user && !token) {
+      if (!token && !isLoading) {
         router.push("/login");
       }
-    };
-    checkAuth();
-  }, [user, isLoading, router]);
+    }, 800);
+    
+    return () => clearTimeout(timer);
+  }, [isLoading, router]);
 
   if (isLoading) {
     return (

@@ -36,36 +36,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const refreshUser = async () => {
+  const refreshUser = async (retry = true) => {
     try {
       setIsLoading(true);
       const data = await GitSageAPI.getProfile() as any;
       
       // Map backend fields to frontend User interface
-      // Detect if the key from server is masked (dots) - if so, it's not the secret
-      const rawKey = data?.raw_key || data?.api_key || data?.apiKey;
-      const isMasked = rawKey?.includes("•") || (rawKey && rawKey.length < 10); // Heuristic for masked key
-
-      const vaultKey = GitSageAPI.vault.getKey("master") || GitSageAPI.vault.getKey(data.id);
-
       const mappedUser: User = {
         ...data,
-        apiKey: (!isMasked && rawKey) ? rawKey : vaultKey,
-        name: data.name || `${data.first_name || ""} ${data.last_name || ""}`.trim() || "Member"
+        id: data.id || data.usr_id,
+        email: data.email,
+        name: data.name || `${data.first_name || ""} ${data.last_name || ""}`.trim() || "Member",
+        apiKey: data.api_key || data.raw_key || GitSageAPI.vault.getKey("master"),
       };
 
-      console.log("[Auth] User Profile Refreshed:", { id: mappedUser.id, hasApiKey: !!mappedUser.apiKey });
-
+      console.log("[Auth] User Profile Refreshed:", { id: mappedUser.id });
       setUser(mappedUser);
       
       if (mappedUser.apiKey) {
         localStorage.setItem("gitsage_api_key", mappedUser.apiKey);
-        // Persist to vault as the known good master
         GitSageAPI.vault.saveKey("master", mappedUser.apiKey);
       }
-    } catch (error) {
+    } catch (error: any) {
+      // If 401, retry once after a small delay to handle session propagation race conditions in prod
+      if (retry && error.response?.status === 401) {
+        console.warn("[Auth] 401 on profile refresh, retrying in 1.5s...");
+        await new Promise(r => setTimeout(r, 1500));
+        return refreshUser(false);
+      }
+
       setUser(null);
-      // Only clear if we actually had a token that is now invalid
       if (typeof window !== "undefined") {
         localStorage.removeItem("gitsage_access_token");
         localStorage.removeItem("gitsage_api_key");

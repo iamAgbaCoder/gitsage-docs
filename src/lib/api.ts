@@ -50,20 +50,30 @@ const clearCache = (url?: string) => {
   }
 };
 
-// Request Interceptor: Inject Auth Token or API Key + Protocol Enforcement + Cache Busting
+// Request Interceptor: Absolute Security + Protocol Enforcement + Cache Busting
 apiClient.interceptors.request.use((config) => {
-  // Normalization: Ensure no trailing slashes to prevent protocol-downgrading redirects
-  if (config.url && config.url.length > 1 && config.url.endsWith("/")) {
+  // 1. Ensure Absolute Pathing to prevent redirect-memorization by browser
+  if (config.url && config.url.startsWith("/")) {
+    config.url = `${API_BASE_URL}${config.url}`;
+  }
+
+  // 2. Trailing Slash Stripping (Enforcement)
+  if (config.url && config.url.includes("?") ) {
+    const [path, query] = config.url.split("?");
+    if (path.endsWith("/") && path.length > 1) {
+       config.url = `${path.slice(0, -1)}?${query}`;
+    }
+  } else if (config.url && config.url.endsWith("/") && config.url.length > API_BASE_URL.length + 1) {
     config.url = config.url.slice(0, -1);
   }
 
-  // Cache Busting: Prevent browser from remembering old insecure redirects (301/307)
+  // 3. Cache Busting (Force Browser Refresh)
   if (config.method === 'get') {
-    config.params = { ...config.params, _v: Date.now() };
+    config.params = { ...config.params, _cache: Date.now() };
   }
 
-  // Protocol Enforcement: Ensure all production requests are HTTPS
-  if (config.url && config.url.startsWith("http:") && !config.url.includes("localhost") && !config.url.includes("127.0.0.1")) {
+  // 4. Final Protocol Lock: Force HTTPS
+  if (config.url && config.url.startsWith("http:")) {
     config.url = config.url.replace("http:", "https:");
   }
 
@@ -71,14 +81,12 @@ apiClient.interceptors.request.use((config) => {
     const token = localStorage.getItem("gitsage_access_token");
     const apiKey = localStorage.getItem("gitsage_api_key");
 
-    // Always provide Authorization if we have it (for portal sessions)
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (token && config.headers) {
+      config.headers.set("Authorization", `Bearer ${token}`);
     }
     
-    // Also provide API Key for intelligence/usage calls specifically
-    if (apiKey && (config.url?.includes("/intelligence") || config.url?.includes("/usage"))) {
-      config.headers["X-API-Key"] = apiKey;
+    if (apiKey && config.headers && (config.url?.includes("/intelligence") || config.url?.includes("/usage"))) {
+      config.headers.set("X-API-Key", apiKey);
     }
   }
   return config;
