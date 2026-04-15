@@ -1,0 +1,8 @@
+{
+  "api_base_url": "https://gitsage-api.up.railway.app",
+  "frontend_base_url": "https://gitsage-ai.vercel.app",
+  "latest_version": "1.0.0",
+  "min_supported_version": "1.0.0",
+  "status": "ok",
+  "features": {}
+}
