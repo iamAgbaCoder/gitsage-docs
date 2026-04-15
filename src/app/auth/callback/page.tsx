@@ -20,24 +20,11 @@ function GitHubCallbackContent() {
     if (code && !processedRef.current) {
       processedRef.current = true;
       
-      const handleSSO = async () => {
-        try {
-          // 1. Exchange the temporary GitHub code for a JWT via our backend
-          await GitSageAPI.githubCallback(code);
-          
-          toast.success("GitHub identity authenticated.");
-          
-          // 2. Landing at the intelligence operations center
-          // The Dashboard layout automatically handles refreshUser() on mount.
-          router.push("/dashboard");
-        } catch (err) {
-          console.error("SSO Callback Error:", err);
-          toast.error("Failed to verify GitHub signature.");
-          router.push("/login");
-        }
-      };
-      
-      handleSSO();
+      // Perform a hard redirect to the backend callback.
+      // The backend returns a RedirectResponse which browser navigation handles correctly,
+      // whereas a fetch/Axios call would silently follow it and return HTML.
+      const backendUrl = GitSageAPI.getGitHubAuthUrl() + "/callback?code=" + code;
+      window.location.href = backendUrl;
     } else if (!code && !processedRef.current) {
       // No code in URL, redirect home
       router.push("/login");

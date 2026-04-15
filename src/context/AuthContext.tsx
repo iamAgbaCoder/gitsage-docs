@@ -153,6 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     localStorage.removeItem("gitsage_access_token");
     localStorage.removeItem("gitsage_api_key");
+    GitSageAPI.invalidateCache();
     setUser(null);
     toast.success("Safely disconnected.");
     router.push("/login");

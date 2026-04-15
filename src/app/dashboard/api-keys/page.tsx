@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import useSWR from "swr";
 import { Key, Copy, Check, Trash2, Plus, Terminal, PlusCircle, Shield, Globe } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
@@ -14,30 +15,21 @@ export default function ApiKeysPage() {
   const user = auth?.user;
   const refreshUser = auth?.refreshUser;
 
-  const [keys, setKeys] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [newKeyName, setNewKeyName] = useState("");
   const [newlyGeneratedKey, setNewlyGeneratedKey] = useState<any | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchKeys();
-    // Real-time polling simulation (Every 10 seconds)
-    const interval = setInterval(fetchKeys, 10000);
-    return () => clearInterval(interval);
-  }, []);
+  const fetcher = () => GitSageAPI.listApiKeys();
+  const { data, error, isLoading, mutate } = useSWR("/v1/api-keys", fetcher, {
+    dedupingInterval: 300000,
+    refreshInterval: 10000,
+  });
+
+  const keys = Array.isArray(data) ? data : (data?.keys || []);
 
   const fetchKeys = async () => {
-    try {
-      const data: any = await GitSageAPI.listApiKeys();
-      const extractedKeys = Array.isArray(data) ? data : (data?.keys || []);
-      setKeys(extractedKeys);
-    } catch (err) {
-      console.error("Failed to fetch keys", err);
-    } finally {
-      setIsLoading(false);
-    }
+    mutate();
   };
 
   const handleGenerateKey = async (e: React.FormEvent) => {
@@ -91,8 +83,8 @@ export default function ApiKeysPage() {
   };
 
   // Derive counts dynamically
-  const activeCount = keys.filter(k => k.status === "active").length;
-  const revokedCount = keys.filter(k => k.status === "revoked").length;
+  const activeCount = keys.filter((k: any) => k.status === "active").length;
+  const revokedCount = keys.filter((k: any) => k.status === "revoked").length;
 
   return (
     <div className="space-y-8 sm:space-y-12 max-w-full overflow-hidden">
@@ -177,9 +169,10 @@ export default function ApiKeysPage() {
                          </code>
                       </div>
                       
-                      <div className="p-4 bg-amber-500/5 border border-amber-500/10 rounded-xl">
-                         <p className="text-[10px] text-amber-500/80 font-medium leading-relaxed">
-                            <span className="font-bold">CAUTION:</span> Store this key in a secure vault (like GitHub Secrets or 1Password). Once this window is closed, the GitSage engine will purge the plain-text secret from its short-term memory forever.
+                      <div className="p-4 bg-red-500/5 border border-red-500/10 rounded-xl relative overflow-hidden group">
+                         <div className="absolute top-0 right-0 p-2 opacity-10 text-red-500 transform rotate-12 group-hover:scale-110 transition-transform"><Shield size={48} /></div>
+                         <p className="text-[10px] text-red-500/80 font-medium leading-relaxed relative z-10">
+                            <span className="font-bold flex items-center gap-1 mb-1 text-red-500"><Shield size={12} className="inline"/> RED WARNING BADGE:</span> Store this key in a secure vault (like GitHub Secrets or 1Password). Once this window is closed, the GitSage engine will purge the plain-text secret from its short-term memory forever.
                          </p>
                       </div>
                    </div>
@@ -227,7 +220,7 @@ export default function ApiKeysPage() {
                     <p className="text-slate-400 text-sm">No active API keys located for this account.</p>
                  </div>
                ) : (
-                 keys.map((key) => (
+                 keys.map((key: any) => (
                    <div key={key.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:bg-white/[0.02] transition-all group">
                       <div className="space-y-1">
                          <div className="flex items-center gap-3">

@@ -323,6 +323,23 @@ export const GitSageAPI = {
   getProfile: async () => {
     return await GitSageAPI.fetchWithCache("/v1/auth/me", 10 * 60 * 1000); // 10 min cache for profile
   },
+
+  updateProfile: async (payload: { first_name?: string; last_name?: string; avatar_url?: string; }) => {
+    const data = await apiClient.put("/v1/auth/me", payload);
+    GitSageAPI.invalidateCache("/v1/auth/me");
+    return data;
+  },
+
+  /**
+   * TELEMETRY & ADMIN
+   */
+  getTelemetryMetrics: async () => {
+    return await GitSageAPI.fetchWithCache("/v1/telemetry/metrics");
+  },
+
+  getAdminDashboard: async () => {
+    return await apiClient.get("/v1/admin/dashboard");
+  },
 };
 
 export default apiClient;

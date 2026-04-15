@@ -24,13 +24,14 @@ const DASHBOARD_LINKS = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/api-keys", label: "API Keys", icon: Key },
   { href: "/dashboard/usage", label: "Usage Stats", icon: BarChart3 },
+  { href: "/dashboard/admin", label: "Admin", icon: BarChart3 },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 export default function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout, isLoading } = useAuth();
+  const { user, logout, isLoading, refreshUser } = useAuth();
   
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
@@ -52,26 +53,68 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
 
   // Authentication Redirect - Hardened Guard
   useEffect(() => {
-    // Small delay to allow AuthContext to stabilize token from localStorage/SSO callback
+    // 1. Check for token in URL (GitHub SSO Harvesting)
+    const searchParams = new URLSearchParams(window.location.search);
+    const urlToken = searchParams.get("token");
+
+    if (urlToken) {
+      localStorage.setItem("gitsage_access_token", urlToken);
+      // Remove token from URL for security/cleanliness
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, "", newUrl);
+    }
+
+    // 2. Small delay to allow AuthContext to stabilize token from localStorage/SSO callback
     const timer = setTimeout(() => {
       const token = localStorage.getItem("gitsage_access_token");
       if (!token && !isLoading) {
         router.push("/login");
+      } else if (token && !user && !isLoading) {
+        // Handle case where we have a token but no user yet (like right after harvesting)
+        refreshUser();
       }
     }, 800);
     
     return () => clearTimeout(timer);
-  }, [isLoading, router]);
+  }, [isLoading, router, user, refreshUser]);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#020617]">
-        <div className="flex flex-col items-center gap-4">
-           <div className="w-12 h-12 rounded-2xl bg-sage/20 border border-sage/40 flex items-center justify-center animate-pulse">
-              <LayoutDashboard size={24} className="text-sage" />
-           </div>
-           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest animate-pulse">Initializing Portal...</p>
-        </div>
+      <div className="flex h-screen bg-[#020617] overflow-hidden">
+         {/* Skeleton Sidebar */}
+         <aside className="fixed lg:relative flex flex-col h-full bg-[#030712] border-r border-white/5 z-50 w-20 lg:w-[280px]">
+            <div className="flex items-center gap-3 px-6 h-20 border-b border-white/5 mb-6 overflow-hidden">
+               <div className="w-8 h-8 rounded-lg bg-white/5 animate-pulse shrink-0"></div>
+               <div className="hidden lg:block w-32 h-4 bg-white/5 animate-pulse rounded"></div>
+            </div>
+            <div className="flex-1 px-4 space-y-3">
+               {[1, 2, 3, 4].map((i) => (
+                 <div key={i} className="flex items-center gap-3 px-3 py-3 rounded-xl border border-white/5 bg-white/[0.02] animate-pulse">
+                    <div className="w-5 h-5 rounded bg-white/5 shrink-0"></div>
+                    <div className="hidden lg:block w-24 h-3 bg-white/5 rounded"></div>
+                 </div>
+               ))}
+            </div>
+         </aside>
+
+         {/* Skeleton Main Content */}
+         <main className="flex-1 h-full overflow-y-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 relative animate-pulse">
+            <div className="flex justify-between items-center mb-6 sm:mb-10 pb-6 sm:pb-8 border-b border-white/5">
+                <div className="space-y-2">
+                   <div className="w-48 h-6 bg-white/5 rounded"></div>
+                   <div className="w-32 h-3 bg-white/5 rounded"></div>
+                </div>
+            </div>
+            <div className="max-w-6xl mx-auto space-y-8">
+                <div className="h-32 bg-white/5 rounded-3xl border border-white/5"></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                   <div className="h-40 bg-white/5 rounded-2xl border border-white/5"></div>
+                   <div className="h-40 bg-white/5 rounded-2xl border border-white/5"></div>
+                   <div className="h-40 bg-white/5 rounded-2xl border border-white/5"></div>
+                   <div className="h-40 bg-white/5 rounded-2xl border border-white/5"></div>
+                </div>
+            </div>
+         </main>
       </div>
     );
   }

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
+import useSWR from "swr";
 import { BarChart3, TrendingUp, RefreshCw, Activity, ArrowUpRight, ArrowDownRight, Zap, Database, Clock, Globe } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -8,28 +9,18 @@ import { Button } from "@/components/ui/Button";
 import { GitSageAPI } from "@/lib/api";
 import { motion } from "framer-motion";
 
+const fetcher = () => GitSageAPI.getUsageStats();
+
 export default function UsageStatsPage() {
   const { user } = useAuth();
-  const [stats, setStats] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  
+  // SWR: Cache for 5 minutes (dedupingInterval: 300000), revalidate on focus, poll every 60s
+  const { data: stats, error, isLoading: isValidating, mutate } = useSWR("/v1/usage/stats", fetcher, {
+    dedupingInterval: 300000,
+    refreshInterval: 60000,
+  });
 
-  useEffect(() => {
-    fetchStats();
-    // Real-time telemetry polling (Every 10 seconds)
-    const interval = setInterval(fetchStats, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchStats = async (force = false) => {
-    try {
-      const data = await GitSageAPI.getUsageStats(force);
-      setStats(data);
-    } catch (err) {
-      console.error("Failed to fetch stats:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const isLoading = !stats && isValidating;
 
   const currentUsage = stats?.total_requests || 0;
   const limit = 100;
@@ -42,16 +33,34 @@ export default function UsageStatsPage() {
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15 }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
   };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: { y: 0, opacity: 1 }
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8 animate-pulse">
+        <div className="h-20 bg-white/5 rounded-2xl w-[60%] border border-white/5"></div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+           <div className="md:col-span-2 h-80 bg-white/5 rounded-3xl border border-white/5"></div>
+           <div className="space-y-6">
+              <div className="h-[150px] bg-white/5 rounded-3xl border border-white/5"></div>
+              <div className="h-[150px] bg-white/5 rounded-3xl border border-white/5"></div>
+           </div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+           <div className="h-24 bg-white/5 rounded-2xl"></div>
+           <div className="h-24 bg-white/5 rounded-2xl"></div>
+           <div className="h-24 bg-white/5 rounded-2xl"></div>
+           <div className="h-24 bg-white/5 rounded-2xl"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div 
@@ -73,11 +82,14 @@ export default function UsageStatsPage() {
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => fetchStats(true)}
-          disabled={isLoading}
+          onClick={() => {
+            GitSageAPI.invalidateCache("/v1/usage/stats");
+            mutate();
+          }}
+          disabled={isValidating}
           className="w-full sm:w-auto"
         >
-          {isLoading ? <RefreshCw size={14} className="animate-spin mr-2" /> : <RefreshCw size={14} className="mr-2" />}
+          {isValidating ? <RefreshCw size={14} className="animate-spin mr-2" /> : <RefreshCw size={14} className="mr-2" />}
           Refresh Metrics
         </Button>
       </section>
@@ -114,10 +126,10 @@ export default function UsageStatsPage() {
                       { label: "Avg Latency", value: formatLatency(stats?.avg_response_time), suffix: "Intelligence" },
                       { label: "Token Pulse", value: stats?.total_tokens || "0", suffix: "Total Consumed" },
                     ].map((m) => (
-                      <div key={m.label} className="space-y-1">
-                         <p className="text-2xl font-bold text-white font-outfit">{m.value}</p>
-                         <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest leading-none">{m.label}</p>
-                      </div>
+                       <div key={m.label} className="space-y-1">
+                          <p className="text-2xl font-bold text-white font-outfit">{m.value}</p>
+                          <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest leading-none">{m.label}</p>
+                       </div>
                     ))}
                  </div>
               </div>
