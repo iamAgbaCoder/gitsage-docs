@@ -40,7 +40,20 @@ export const metadata: Metadata = {
   },
 };
 
+const outfit = Outfit({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-outfit",
+});
+
+const firaCode = Fira_Code({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-fira-code",
+});
+
 import ScrollHandler from "@/components/ScrollHandler";
+import TelemetryHandler from "@/components/TelemetryHandler";
 
 export default function RootLayout({
   children,
@@ -48,17 +61,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="bg-[#020617] text-white selection:bg-sage/30 overflow-x-hidden w-full">
+    <html lang="en" className={`${outfit.variable} ${firaCode.variable}`}>
+      <body className="bg-[#020617] text-white selection:bg-sage/30 font-outfit overflow-x-hidden w-full">
         <ScrollHandler />
         <AuthProvider>
+          <TelemetryHandler />
           {children}
           <Toaster 
             position="bottom-right"

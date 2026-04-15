@@ -347,7 +347,7 @@ export default function DashboardOverview() {
                           <p className="text-[10px] text-slate-500">Tier: Developer (Flash Engine)</p>
                        </div>
                        <span className="text-xl sm:text-2xl font-bold font-fira text-sage">
-                         {usage?.total_requests ? Math.round((usage.total_requests / 100) * 100) : 0}%
+                         {usage?.total_requests ? Math.round(Math.min((usage.total_requests / 100) * 100, 100)) : 0}%
                        </span>
                     </div>
                     <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 p-[1px]">

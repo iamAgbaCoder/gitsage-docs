@@ -24,7 +24,7 @@ export default function UsageStatsPage() {
 
   const currentUsage = stats?.total_requests || 0;
   const limit = 100;
-  const percentage = Math.min((currentUsage / limit) * 100, 100);
+  const percentage = Math.round(Math.min((currentUsage / limit) * 100, 100));
 
   const formatLatency = (ms: number) => {
     if (!ms) return "0ms";

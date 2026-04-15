@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/HP/Desktop/dev/GitSage-Backend-API/app/models/**)",
+      "Read(//c/Users/HP/Desktop/dev/gitsage/**)",
+      "Read(//c/Users/HP/Desktop/dev/GitSage-Backend-API/**)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\HP\\Desktop\\dev\\gitsage\\cli"
+    ]
+  }
+}

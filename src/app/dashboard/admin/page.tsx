@@ -59,14 +59,15 @@ export default function AdminDashboardPage() {
   }
 
   // Safe Fallbacks
-  const stats = adminData || {};
-  const metrics = telemetryData || {};
+  const stats: any = adminData || {};
+  const metrics: any = telemetryData || {};
   
   const requestsOverTime = stats.requests_over_time || [];
   const events30Days = metrics.events_last_30_days || [];
   const topProviders = stats.top_providers || [];
   const topEndpoints = stats.top_endpoints || [];
   const topCountries = metrics.top_countries || [];
+  const topCommits = metrics.top_commits || [];
 
   const COLORS = ['#22c55e', '#38bdf8', '#f59e0b', '#a855f7', '#ec4899'];
 
@@ -92,6 +93,7 @@ export default function AdminDashboardPage() {
          {[
            { label: "Total Requests", value: stats.total_api_requests || 0, icon: Activity, color: "text-sky-400", bg: "bg-sky-400/10" },
            { label: "LLM Tokens", value: stats.total_llm_tokens_consumed || 0, icon: Database, color: "text-sage", bg: "bg-sage/10" },
+           { label: "CLI Users", value: metrics.total_cli_users || 0, icon: Server, color: "text-sage", bg: "bg-sage/10" },
            { label: "Registered Users", value: stats.total_registered_users || 0, icon: Users, color: "text-purple-400", bg: "bg-purple-400/10" },
            { label: "Total Page Views", value: metrics.total_page_views || 0, icon: Globe, color: "text-amber-400", bg: "bg-amber-400/10" },
          ].map((stat) => (
@@ -151,6 +153,38 @@ export default function AdminDashboardPage() {
         </motion.div>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+         <motion.div variants={itemVariants}>
+            <Card variant="glass" className="p-6 h-full flex flex-col">
+               <h3 className="font-bold text-sm uppercase tracking-widest text-white mb-6">Top Endpoint Volume</h3>
+               <div className="flex-1 space-y-4">
+                  {topEndpoints.slice(0, 5).map((ep: any) => (
+                    <div key={ep.endpoint} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5">
+                       <span className="font-outfit text-white text-sm truncate max-w-[200px]">{ep.endpoint}</span>
+                       <span className="text-slate-400 text-sm font-bold">{ep.count.toLocaleString()}</span>
+                    </div>
+                  ))}
+                  {topEndpoints.length === 0 && <p className="text-slate-500 text-sm italic">No endpoint data available.</p>}
+               </div>
+            </Card>
+         </motion.div>
+
+         <motion.div variants={itemVariants}>
+            <Card variant="glass" className="p-6 h-full flex flex-col">
+               <h3 className="font-bold text-sm uppercase tracking-widest text-white mb-6">Top Commit Intelligence</h3>
+               <div className="flex-1 space-y-4">
+                  {topCommits.slice(0, 5).map((commit: any) => (
+                    <div key={commit.commit_message} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5">
+                       <span className="font-outfit text-white text-sm truncate max-w-[200px]">{commit.commit_message}</span>
+                       <span className="text-sage text-sm font-bold">{commit.count.toLocaleString()} hits</span>
+                    </div>
+                  ))}
+                  {topCommits.length === 0 && <p className="text-slate-500 text-sm italic">No commit telemetry found.</p>}
+               </div>
+            </Card>
+         </motion.div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <motion.div variants={itemVariants}>
           <Card variant="glass" className="p-6">
@@ -182,18 +216,15 @@ export default function AdminDashboardPage() {
 
         <motion.div variants={itemVariants} className="lg:col-span-2">
            <Card variant="glass" className="p-6 h-full flex flex-col">
-              <h3 className="font-bold text-sm uppercase tracking-widest text-white mb-6">Top Endpoint Volume</h3>
-              <div className="flex-1 space-y-4">
-                 {topEndpoints.map((ep: any, i: number) => (
-                   <div key={ep.endpoint} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5">
-                      <div className="flex items-center gap-3">
-                         <span className="text-sage text-xs font-mono bg-sage/10 px-2 py-1 rounded">GET/POST</span>
-                         <span className="font-outfit text-white text-sm">{ep.endpoint}</span>
-                      </div>
-                      <span className="text-slate-400 text-sm font-bold">{ep.count.toLocaleString()} calls</span>
+              <h3 className="font-bold text-sm uppercase tracking-widest text-white mb-6">Regional Reach (Top Countries)</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                 {topCountries.map((c: any) => (
+                   <div key={c.country} className="p-4 bg-white/5 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-1">
+                      <span className="text-2xl font-bold text-white">{c.country}</span>
+                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{c.count} Views</span>
                    </div>
                  ))}
-                 {topEndpoints.length === 0 && <p className="text-slate-500 text-sm italic">No endpoint data available.</p>}
+                 {topCountries.length === 0 && <p className="text-slate-500 text-sm italic col-span-full text-center py-10">Waiting for global signals...</p>}
               </div>
            </Card>
         </motion.div>

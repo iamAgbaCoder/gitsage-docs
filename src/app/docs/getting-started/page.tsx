@@ -62,7 +62,7 @@ export default function GettingStartedPage() {
            <h2 id="installation" className="text-xl font-bold font-outfit text-white flex items-center gap-2">
               <Terminal size={20} className="text-sage" /> Installation
            </h2>
-           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">v1.2.0 stable</span>
+           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">v1.0.0 stable</span>
         </div>
         <div className="space-y-6">
            <div className="space-y-2">
@@ -90,7 +90,7 @@ export default function GettingStartedPage() {
         <Card variant="solid" className="border-amber-400/20">
            <CardContent className="space-y-4">
               <CodeBlock 
-                code={`# Configure via GitSage CLI (Recommended)\ngitsage config --provider gitsage --key YOUR_GITSAGE_KEY`} 
+                code={`# Authenticate via GitSage CLI (Recommended)\ngitsage auth --token YOUR_GITSAGE_KEY`} 
                 language="bash" 
               />
               <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200/70 text-xs leading-relaxed">
@@ -111,14 +111,14 @@ export default function GettingStartedPage() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
            <div className="space-y-3">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Stage and Analyze</p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Run Analysis</p>
               <CodeBlock 
-                code={`git add src/core.py\ngitsage`} 
+                code={`gitsage`} 
                 language="bash" 
               />
            </div>
            <div className="space-y-3">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Analyze and Commit</p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Commit shorthand</p>
               <CodeBlock 
                 code={`gitsage -c`} 
                 language="bash" 

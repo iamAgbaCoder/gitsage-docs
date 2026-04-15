@@ -30,19 +30,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   // Initialize loading as true if we have a token to fetch, otherwise false
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(() => {
-    if (typeof window !== "undefined") {
-      return !!localStorage.getItem("gitsage_access_token");
-    }
-    return true;
-  });
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("gitsage_access_token") : null;
     if (token) {
       refreshUser();
-    } else {
-      setIsLoading(false);
     }
   }, []);
 

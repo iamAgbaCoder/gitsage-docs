@@ -134,7 +134,7 @@ export default function ConfigurationPage() {
           You can update configuration directly from the terminal without editing the JSON file:
         </p>
         <CodeBlock
-          code={`# Set GitSage Cloud as provider with your API key\ngitsage config --provider gitsage --key YOUR_GLOBAL_KEY\n\n# Switch to local Ollama mode\ngitsage config --provider local\n\n# Enable auto-commit for high-confidence suggestions\ngitsage config --auto-commit true\n\n# Change max commit message length\ngitsage config --max-length 80\n\n# View current config\ngitsage config`}
+          code={`# Set commit message style (conventional, simple, emoji)\ngitsage config --style conventional\n\n# Enable or disable anonymous usage tracking\ngitsage config --telemetry\ngitsage config --no-telemetry\n\n# Reset all preferences to defaults\ngitsage config --reset\n\n# View current config\ngitsage config --help`}
           language="bash"
         />
       </section>

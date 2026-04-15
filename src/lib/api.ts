@@ -261,7 +261,7 @@ export const GitSageAPI = {
    */
   listApiKeys: async () => {
     // We don't cache keys to ensure revocation visibility
-    const keys: any = await apiClient.get("/v1/api-keys");
+    const keys: any = await apiClient.get("/v1/api-keys/");
     
     // Enrich with vault if possible
     if (Array.isArray(keys)) {
@@ -280,7 +280,7 @@ export const GitSageAPI = {
   },
 
   generateApiKey: async (name: string = "Default Key") => {
-    const res: any = await apiClient.post("/v1/api-keys", { name });
+    const res: any = await apiClient.post("/v1/api-keys/", { name });
     
     // Aligned with backend: { data: { raw_key: "gs_...", id: "..." } }
     // Interceptor returns 'data' part.
@@ -321,7 +321,7 @@ export const GitSageAPI = {
    * PROFILE
    */
   getProfile: async () => {
-    return await GitSageAPI.fetchWithCache("/v1/auth/me", 10 * 60 * 1000); // 10 min cache for profile
+    return await apiClient.get("/v1/auth/me");
   },
 
   updateProfile: async (payload: { first_name?: string; last_name?: string; avatar_url?: string; }) => {
@@ -333,6 +333,22 @@ export const GitSageAPI = {
   /**
    * TELEMETRY & ADMIN
    */
+  trackEvent: async (eventType: string, source: string = "web", metadata: any = {}, userId?: string) => {
+    try {
+      const payload: any = {
+        event_type: eventType,
+        source: source,
+        metadata: metadata
+      };
+      if (userId) payload.user_id = userId;
+
+      // Use fire-and-forget for telemetry to avoid slowing down UI
+      return await apiClient.post("/v1/telemetry/track", payload);
+    } catch (err) {
+      console.warn("[Telemetry] Event capture failed:", err);
+    }
+  },
+
   getTelemetryMetrics: async () => {
     return await GitSageAPI.fetchWithCache("/v1/telemetry/metrics");
   },

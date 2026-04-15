@@ -34,9 +34,11 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
   const { user, logout, isLoading, refreshUser } = useAuth();
   
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(true);
+  const [isDesktop, setIsDesktop] = useState<boolean>(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const handleResize = () => {
       const desktop = window.innerWidth >= 1024;
       setIsDesktop(desktop);
@@ -67,18 +69,24 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
     // 2. Small delay to allow AuthContext to stabilize token from localStorage/SSO callback
     const timer = setTimeout(() => {
       const token = localStorage.getItem("gitsage_access_token");
-      if (!token && !isLoading) {
-        router.push("/login");
-      } else if (token && !user && !isLoading) {
-        // Handle case where we have a token but no user yet (like right after harvesting)
-        refreshUser();
+      
+      // Only redirect if we are DEFINITELY not loading and DEFINITELY don't have a token or user
+      if (!isLoading) {
+        if (!token) {
+          console.warn("[Dashboard] No token found, redirecting to login.");
+          router.push("/login");
+        } else if (!user) {
+          // We have a token but no user object in context - try to recover it
+          console.log("[Dashboard] Token present but no user, refreshing...");
+          refreshUser();
+        }
       }
-    }, 800);
+    }, 1200); // Increased delay for stability
     
     return () => clearTimeout(timer);
   }, [isLoading, router, user, refreshUser]);
 
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return (
       <div className="flex h-screen bg-[#020617] overflow-hidden">
          {/* Skeleton Sidebar */}
@@ -139,7 +147,7 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed lg:relative flex flex-col h-full bg-[#030712] border-r border-white/5 z-50 transition-all duration-300 ease-in-out",
+          "fixed inset-y-0 left-0 lg:static lg:inset-auto flex flex-col h-full bg-[#030712] border-r border-white/5 z-50 transition-all duration-300 ease-in-out",
           // Mobile classes
           !isDesktop && (isSidebarOpen ? "translate-x-0 w-[240px] sm:w-[280px]" : "-translate-x-full w-[240px] sm:w-[280px]"),
           // Desktop classes
@@ -160,7 +168,12 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
 
         {/* Nav Links */}
         <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-          {DASHBOARD_LINKS.map((link) => {
+          {DASHBOARD_LINKS.filter(link => {
+            if (link.href === "/dashboard/admin") {
+              return user?.email === "demiladebamgboye@gmail.com";
+            }
+            return true;
+          }).map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link 

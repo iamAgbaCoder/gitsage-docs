@@ -117,9 +117,9 @@ export default function DocsIndexPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.75rem" }} className="docs-index-grid">
           {[
             { cmd: "pip install gitsage", desc: "Install GitSage" },
-            { cmd: "gitsage", desc: "Analyze staged changes" },
+            { cmd: "gitsage auth --token <KEY>", desc: "Authenticate CLI" },
             { cmd: "gitsage -c", desc: "Stage all & commit" },
-            { cmd: "gitsage config --provider local", desc: "Switch to Ollama" },
+            { cmd: "gitsage config --style emoji", desc: "Set preferences" },
           ].map((item) => (
             <div key={item.cmd} style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
               <code style={{ fontFamily: "var(--font-fira-code), monospace", fontSize: "0.78rem", color: "#22c55e", background: "rgba(34,197,94,0.06)", padding: "0.25rem 0.6rem", borderRadius: "5px", whiteSpace: "nowrap" }}>

@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -61,6 +62,13 @@ interface DocsSidebarProps {
 
 export default function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
   const pathname = usePathname();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDesktop = mounted && typeof window !== 'undefined' && window.innerWidth >= 1024;
 
   return (
     <>
@@ -81,11 +89,11 @@ export default function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
       <motion.aside
         initial={false}
         animate={{ 
-          x: isOpen ? 0 : (typeof window !== 'undefined' && window.innerWidth >= 1024 ? 0 : "-100%") 
+          x: isOpen || isDesktop ? 0 : "-100%" 
         }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         className={cn(
-          "fixed inset-y-0 left-0 w-80 h-full bg-[#030712] border-r border-white/5 z-[101] p-6 pt-12 overflow-y-auto custom-scrollbar lg:relative lg:translate-x-0 lg:w-72 lg:bg-transparent lg:border-none lg:z-10 lg:pt-0 pb-20",
+          "fixed inset-y-0 left-0 w-80 h-full bg-[#030712] border-r border-white/5 z-[101] p-6 pt-12 overflow-y-auto custom-scrollbar lg:sticky lg:top-32 lg:max-h-[calc(100vh-8rem)] lg:translate-x-0 lg:w-72 lg:bg-transparent lg:border-none lg:z-10 lg:pt-0 pb-20",
           isOpen ? "block" : "hidden lg:block"
         )}
       >

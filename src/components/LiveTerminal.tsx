@@ -12,13 +12,16 @@ interface TerminalLine {
 
 const COMMAND_RESPONSES: Record<string, TerminalLine[]> = {
   help: [
-    { type: "info", text: "GitSage v1.2.0 — AI-powered Git Intelligence", icon: Terminal },
-    { type: "success", text: "Available commands:" },
-    { type: "output", text: "  gitsage          Run full analysis on staged changes" },
-    { type: "output", text: "  gitsage -c        Stage all & commit with AI message" },
-    { type: "output", text: "  gitsage config    Configure provider & preferences" },
-    { type: "output", text: "  gitsage --local   Use local Ollama model (privacy mode)" },
-    { type: "output", text: "  clear             Clear terminal" },
+    { type: "info", text: "GitSage v1.0.0 — AI-powered Git Intelligence", icon: Terminal },
+    { type: "success", text: "Usage: gitsage [OPTIONS] COMMAND [ARGS]..." },
+    { type: "output", text: "Options:" },
+    { type: "output", text: "  -c, --commit    Shorthand for 'gitsage commit'" },
+    { type: "output", text: "  -v, --version   Show version and exit" },
+    { type: "output", text: "" },
+    { type: "output", text: "Commands:" },
+    { type: "output", text: "  auth            Save or remove your GitSage API key" },
+    { type: "output", text: "  commit          Analyse changes and generate message" },
+    { type: "output", text: "  config          Manage GitSage preferences" },
   ],
   "gitsage": [
     { type: "info", text: "Scanning staged changes...", icon: Search },
@@ -29,16 +32,16 @@ const COMMAND_RESPONSES: Record<string, TerminalLine[]> = {
     { type: "report", text: "Suggesting: feat(auth): add JWT token expiry validation" },
     { type: "success", text: "Confidence: ████████████████████░░  91%" },
   ],
-  "gitsage --local": [
-    { type: "info", text: "Switching to Stealth Mode...", icon: Lock },
-    { type: "success", text: "Ollama connected — mistral:7b active", icon: CheckCircle2 },
-    { type: "output", text: "Context isolated. No data leaving machine." },
+  "gitsage auth": [
+    { type: "info", text: "╭───────────────── Authenticated ──────────────────╮", icon: Lock },
+    { type: "success", text: "│  ✔ API key is active: gs_fcC...w9nI              │" },
+    { type: "output", text: "╰──────────────────────────────────────────────────╯" },
   ]
 };
 
 export default function LiveTerminal() {
   const [lines, setLines] = useState<TerminalLine[]>([
-    { type: "info", text: "GitSage v1.2.0 (Stable) — build 0x7A23", icon: Terminal },
+    { type: "info", text: "GitSage v1.0.0 (Stable) — build 0x7A23", icon: Terminal },
     { type: "output", text: "Type 'help' to explore the intelligence engine." },
   ]);
   const [input, setInput] = useState("");

@@ -21,7 +21,7 @@ export default function ApiKeysPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const fetcher = () => GitSageAPI.listApiKeys();
-  const { data, error, isLoading, mutate } = useSWR("/v1/api-keys", fetcher, {
+  const { data, error, isLoading, mutate } = useSWR("/v1/api-keys/", fetcher, {
     dedupingInterval: 300000,
     refreshInterval: 10000,
   });
