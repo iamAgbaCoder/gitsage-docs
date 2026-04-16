@@ -7,13 +7,13 @@
 set -euo pipefail
 
 # ── Constants ────────────────────────────────────────────────
-REPO="iamAgbaCoder/gitsage"
+REPO="iamAgbaCoder/GitSage"
 BINARY_NAME="gitsage"
 INSTALL_DIR="/usr/local/bin"
-FALLBACK_VERSION="v1.1.0"
+FALLBACK_VERSION="v1.0.0"
 GITHUB_API="https://api.github.com/repos/${REPO}/releases/latest"
 GITHUB_RELEASES="https://github.com/${REPO}/releases/download"
-
+# https://github.com/iamAgbaCoder/GitSage/releases/download/v1.0.0/gitsage-windows-amd64.exe
 # ── Colors ───────────────────────────────────────────────────
 RESET="\033[0m"
 BLUE="\033[1;34m"
