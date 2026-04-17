@@ -4,34 +4,42 @@ import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 
+const SITE_URL = "https://gitsage-ai.vercel.app";
+
 const viewport: Viewport = {
   themeColor: "#020617",
+  width: "device-width",
+  initialScale: 1,
 };
 
-
 export const metadata: Metadata = {
-  metadataBase: new URL("https://gitsage.dev"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "GitSage — The Intelligence Layer for Git",
-    template: "%s | GitSage Intelligence",
+    template: "%s | GitSage",
   },
   description:
-    "Stop writing commit messages. Start generating intelligence. GitSage uses advanced AI to analyze code changes and explain the intent, impact, and scope of every commit. Supports all major programming languages.",
-  keywords: ["git", "ai", "commit", "developer tools", "gitsage", "ollama", "conventional commits", "python", "javascript", "rust", "go"],
+    "Stop writing commit messages. Start generating intelligence. GitSage uses advanced AI to analyze code changes and explain the intent, impact, and scope of every commit. Works with pip, npm, yarn, pnpm, uv, poetry, and curl.",
+  keywords: ["git", "ai", "commit", "developer tools", "gitsage", "ollama", "conventional commits", "python", "javascript", "rust", "go", "npm", "pip", "uv", "poetry"],
   authors: [{ name: "GitSage Team" }],
   openGraph: {
     type: "website",
+    url: SITE_URL,
     title: "GitSage — The Intelligence Layer for Git",
-    description:
-      "The Intelligence Layer for your Git workflow. Analyzing WHAT changed to explain WHY it matters.",
+    description: "The Intelligence Layer for your Git workflow. Analyzing WHAT changed to explain WHY it matters.",
     siteName: "GitSage",
-    images: [{ url: "/og-image.png" }],
+    images: [{
+      url: `${SITE_URL}/og-image.png`,
+      width: 1200,
+      height: 630,
+      alt: "GitSage — AI-powered Git commit intelligence",
+    }],
   },
   twitter: {
     card: "summary_large_image",
     title: "GitSage — The Intelligence Layer for Git",
     description: "The Intelligence Layer for your Git workflow. Analyzing WHAT changed to explain WHY it matters.",
-    images: ["/og-image.png"],
+    images: [`${SITE_URL}/og-image.png`],
   },
   icons: {
     icon: "/favicon.png",
@@ -62,6 +70,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${outfit.variable} ${firaCode.variable}`}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://gitsage-api.up.railway.app" />
+      </head>
       <body className="bg-[#020617] text-white selection:bg-sage/30 font-outfit overflow-x-hidden w-full">
         <ScrollHandler />
         <AuthProvider>

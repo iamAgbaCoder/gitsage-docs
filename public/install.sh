@@ -22,9 +22,9 @@ RED="\033[1;31m"
 YELLOW="\033[1;33m"
 BOLD="\033[1m"
 
-info()    { echo -e "${BLUE}[INFO]${RESET}  $*"; }
-success() { echo -e "${GREEN}[OK]${RESET}    $*"; }
-warn()    { echo -e "${YELLOW}[WARN]${RESET}  $*"; }
+info()    { echo -e "${BLUE}[INFO]${RESET}  $*" >&2; }
+success() { echo -e "${GREEN}[OK]${RESET}    $*" >&2; }
+warn()    { echo -e "${YELLOW}[WARN]${RESET}  $*" >&2; }
 error()   { echo -e "${RED}[ERROR]${RESET} $*" >&2; exit 1; }
 
 # ── Dependency check ─────────────────────────────────────────

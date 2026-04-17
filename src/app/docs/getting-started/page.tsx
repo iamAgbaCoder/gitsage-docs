@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import CodeBlock from "@/components/CodeBlock";
+import InstallTabs from "@/components/InstallTabs";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Zap, Terminal, Key, ShieldCheck, ChevronRight, Info, AlertTriangle } from "lucide-react";
+import { ArrowRight, CheckCircle2, Zap, Terminal, Key, ShieldCheck, ChevronRight, Info, AlertTriangle, Package } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
@@ -41,10 +42,10 @@ export default function GettingStartedPage() {
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                 {[
-                  "No complex dependencies",
-                  "Python 3.10+ compatible",
+                  "pip, uv, poetry, npm, pnpm, yarn, curl",
+                  "Python 3.10+ · Node.js 18+",
                   "Git 2.x integration",
-                  "Blazing fast inference",
+                  "Works with any language repo",
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-2 text-sm text-slate-300">
                     <CheckCircle2 size={16} className="text-sage shrink-0" />
@@ -56,24 +57,54 @@ export default function GettingStartedPage() {
         </Card>
       </section>
 
-      {/* Usage / Installation Block */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
+      {/* Installation Block */}
+      <section className="space-y-6">
+        <div className="flex items-center justify-between flex-wrap gap-2">
            <h2 id="installation" className="text-xl font-bold font-outfit text-white flex items-center gap-2">
               <Terminal size={20} className="text-sage" /> Installation
            </h2>
-           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">v1.0.0 stable</span>
+           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">v1.1.0 stable</span>
         </div>
-        <div className="space-y-6">
-           <div className="space-y-2">
-              <p className="text-sm text-slate-400">Install globally using pip (ensure your Python environment is active):</p>
-              <CodeBlock code="pip install gitsage" language="bash" />
-           </div>
-           <div className="space-y-2">
-              <p className="text-sm text-slate-400">Or upgrade to the latest intelligence engine:</p>
-              <CodeBlock code="pip install --upgrade gitsage" language="bash" />
-           </div>
+
+        <p className="text-sm text-slate-400 leading-relaxed max-w-2xl">
+          GitSage is available across all major package managers. Pick your preferred ecosystem — the binary is identical regardless of how you install it.
+        </p>
+
+        {/* Install */}
+        <div className="space-y-2">
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+            <Package size={12} /> Install
+          </p>
+          <InstallTabs />
         </div>
+
+        {/* Upgrade */}
+        <div className="space-y-2">
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+            <Package size={12} /> Upgrade
+          </p>
+          <InstallTabs showUpgrade />
+        </div>
+
+        {/* Package name callout */}
+        <Card variant="glass">
+          <CardContent className="space-y-3 text-sm text-slate-400 leading-relaxed">
+            <p className="font-bold text-white text-base">Package names</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { ecosystem: "Python (pip / uv / poetry)", pkg: "gitsage-cli", color: "text-sky-400" },
+                { ecosystem: "Node (npm / pnpm / yarn)", pkg: "gitsage-cli", color: "text-green-400" },
+                { ecosystem: "Shell (macOS & Linux)", pkg: "curl install.sh", color: "text-purple-400" },
+                { ecosystem: "Windows", pkg: "Binary from GitHub Releases", color: "text-amber-400" },
+              ].map((row) => (
+                <div key={row.ecosystem} className="flex items-start gap-3 p-3 bg-white/[0.03] rounded-xl border border-white/5">
+                  <span className={`font-fira font-bold text-xs mt-0.5 shrink-0 ${row.color}`}>{row.pkg}</span>
+                  <span className="text-xs text-slate-500">{row.ecosystem}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </section>
 
       {/* API Configuration Block */}

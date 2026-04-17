@@ -135,3 +135,13 @@ body::before {
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { @apply bg-obsidian; }
 ::-webkit-scrollbar-thumb { @apply bg-sage/25 rounded-full hover:bg-sage/45; }
+
+/* Hide scrollbar but keep scroll behavior */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* Font utility */
+.font-fira { font-family: var(--font-fira-code), monospace; }

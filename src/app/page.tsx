@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import CommitSimulator from "@/components/CommitSimulator";
 import LiveTerminal from "@/components/LiveTerminal";
 import CodeBlock from "@/components/CodeBlock";
+import InstallTabs from "@/components/InstallTabs";
 import Link from "next/link";
 import {
   Brain,
@@ -110,8 +111,8 @@ export default function HomePage() {
         <Header />
 
         {/* ─── HERO ─── */}
-        <section className="pt-32 pb-20 px-6 max-w-7xl mx-auto w-full">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <section className="pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6 max-w-7xl mx-auto w-full">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             {/* Left: Copy */}
             <div className="flex flex-col">
               <div className="flex flex-wrap items-center gap-3 mb-8">
@@ -130,7 +131,7 @@ export default function HomePage() {
                 </a>
               </div>
 
-              <h1 className="text-5xl md:text-7xl font-outfit font-extrabold leading-[1.05] tracking-tight mb-6 text-slate-50">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-outfit font-extrabold leading-[1.05] tracking-tight mb-6 text-slate-50">
                 Commit with <br />
                 <span className="gradient-sage">Intelligence</span>,
                 <br />
@@ -154,10 +155,9 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Install command strip */}
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.07] font-fira text-sm text-slate-400 mb-8 self-start max-w-xs select-all cursor-text">
-                <span className="text-sage select-none">$</span>
-                <span className="text-slate-300">pip install gitsage</span>
+              {/* Multi-package-manager install */}
+              <div className="w-full max-w-lg mb-8">
+                <InstallTabs />
               </div>
 
               <div className="flex flex-wrap gap-6 text-sm text-slate-500">
@@ -171,8 +171,8 @@ export default function HomePage() {
             </div>
 
             {/* Right: Preview */}
-            <div className="relative">
-               <div className="absolute -inset-20 bg-sage/5 blur-[120px] rounded-full pointer-events-none" />
+            <div className="relative w-full">
+               <div className="absolute -inset-10 lg:-inset-20 bg-sage/5 blur-[120px] rounded-full pointer-events-none" />
                <CommitSimulator />
             </div>
           </div>
@@ -302,10 +302,9 @@ export default function HomePage() {
                <h2 className="text-3xl md:text-5xl font-outfit font-bold text-slate-50 mb-4">Ready to write intelligent commits?</h2>
                <p className="text-slate-400 text-lg mb-10 max-w-lg mx-auto">Install in seconds. Works with any Git repository. No lock-in, no subscriptions.</p>
 
-               <div className="max-w-md mx-auto mb-4">
-                  <CodeBlock code="pip install gitsage" language="bash" />
+               <div className="max-w-xl mx-auto w-full mb-10">
+                  <InstallTabs />
                </div>
-               <p className="text-xs text-slate-600 font-fira mb-10">or: <span className="text-slate-500">curl -fsSL https://gitsage-ai.vercel.app/install.sh | bash</span></p>
 
                <div className="flex flex-wrap justify-center gap-4">
                   <Link href="/docs/getting-started" className="btn-sage">
