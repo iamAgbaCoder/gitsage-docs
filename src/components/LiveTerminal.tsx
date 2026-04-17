@@ -12,7 +12,7 @@ interface TerminalLine {
 
 const COMMAND_RESPONSES: Record<string, TerminalLine[]> = {
   help: [
-    { type: "info", text: "GitSage v1.0.0 — AI-powered Git Intelligence", icon: Terminal },
+    { type: "info", text: "GitSage v1.0.1 — AI-powered Git Intelligence", icon: Terminal },
     { type: "success", text: "Usage: gitsage [OPTIONS] COMMAND [ARGS]..." },
     { type: "output", text: "Options:" },
     { type: "output", text: "  -c, --commit    Shorthand for 'gitsage commit'" },
@@ -41,7 +41,7 @@ const COMMAND_RESPONSES: Record<string, TerminalLine[]> = {
 
 export default function LiveTerminal() {
   const [lines, setLines] = useState<TerminalLine[]>([
-    { type: "info", text: "GitSage v1.0.0 (Stable) — build 0x7A23", icon: Terminal },
+    { type: "info", text: "GitSage v1.0.1 (Stable) — build 0x7A24", icon: Terminal },
     { type: "output", text: "Type 'help' to explore the intelligence engine." },
   ]);
   const [input, setInput] = useState("");
