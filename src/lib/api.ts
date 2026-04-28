@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios";
 import { toast } from "react-hot-toast";
 
 // Use the production API base URL - Domain only for clearer path merging
-const API_BASE_URL = "https://gitsage-api.up.railway.app";
+const API_BASE_URL = "https://gitsage-backend-api.onrender.com";
 // const API_BASE_URL = "http://127.0.0.1:8000";
 
 const apiClient = axios.create({
