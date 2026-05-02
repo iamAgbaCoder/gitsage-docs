@@ -172,15 +172,15 @@ export default function HomePage() {
 
             {/* Right: Preview */}
             <div className="relative w-full">
-               <div className="absolute -inset-10 lg:-inset-20 bg-sage/5 blur-[120px] rounded-full pointer-events-none" />
+               <div className="absolute -inset-4 lg:-inset-20 bg-sage/5 blur-[120px] rounded-full pointer-events-none" />
                <CommitSimulator />
             </div>
           </div>
         </section>
 
         {/* ─── GLOBAL IMPACT / TELEMETRY ─── */}
-        <section className="py-16 border-t border-white/5 bg-white/[0.005]">
-           <div className="max-w-7xl mx-auto px-6">
+        <section className="py-12 md:py-16 border-t border-white/5 bg-white/[0.005]">
+           <div className="max-w-7xl mx-auto px-4 sm:px-6">
               <p className="text-center text-[10px] font-bold text-slate-600 uppercase tracking-[0.25em] mb-10">
                 Trusted by developers worldwide
               </p>
@@ -189,8 +189,8 @@ export default function HomePage() {
         </section>
 
         {/* ─── METRICS ─── */}
-        <section className="py-16 border-y border-white/5 bg-white/[0.01]">
-          <div className="max-w-7xl mx-auto px-6">
+        <section className="py-12 md:py-16 border-y border-white/5 bg-white/[0.01]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {METRICS.map((m) => (
                 <div key={m.label} className="glass tactical-grid p-6 rounded-2xl text-center group hover:border-sage/20 hover:bg-sage/5 transition-all duration-300">
@@ -204,7 +204,7 @@ export default function HomePage() {
         </section>
 
         {/* ─── FEATURES ─── */}
-        <section className="py-24 px-6 max-w-7xl mx-auto w-full">
+        <section className="py-16 md:py-24 px-4 sm:px-6 max-w-7xl mx-auto w-full">
           <div className="text-center mb-16">
             <h2 className="text-sm font-bold text-sage uppercase tracking-[0.2em] mb-4">The Sage Pillars</h2>
             <h3 className="text-4xl md:text-5xl font-outfit font-bold text-slate-50 mb-6">Intelligence by Design</h3>
@@ -225,7 +225,7 @@ export default function HomePage() {
         </section>
 
         {/* ─── REPORT DEEP DIVE ─── */}
-        <section className="py-24 bg-white/[0.02] border-y border-white/5 px-6">
+        <section className="py-16 md:py-24 bg-white/[0.02] border-y border-white/5 px-4 sm:px-6">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-sm font-bold text-sky-400 uppercase tracking-[0.2em] mb-4">Engine Report</h2>
@@ -248,7 +248,7 @@ export default function HomePage() {
         </section>
 
         {/* ─── TERMINAL SECTION ─── */}
-        <section className="py-24 px-6 max-w-7xl mx-auto w-full">
+        <section className="py-16 md:py-24 px-4 sm:px-6 max-w-7xl mx-auto w-full">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-sm font-bold text-purple-400 uppercase tracking-[0.2em] mb-4">Privacy First</h2>
@@ -290,8 +290,8 @@ export default function HomePage() {
         </section>
 
         {/* ─── CTA ─── */}
-        <section className="py-24 px-6 bg-gradient-to-b from-transparent to-sage/5">
-          <div className="max-w-4xl mx-auto glass-strong tactical-grid p-12 md:p-16 rounded-[40px] text-center border-sage/20 relative overflow-hidden">
+        <section className="py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-transparent to-sage/5">
+          <div className="max-w-4xl mx-auto glass-strong tactical-grid p-8 sm:p-12 md:p-16 rounded-[32px] md:rounded-[40px] text-center border-sage/20 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-72 h-72 bg-sage/10 blur-[100px] -mr-36 -mt-36 pointer-events-none" />
              <div className="absolute bottom-0 left-0 w-72 h-72 bg-sky-500/10 blur-[100px] -ml-36 -mb-36 pointer-events-none" />
 

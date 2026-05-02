@@ -62,6 +62,7 @@ const firaCode = Fira_Code({
 
 import ScrollHandler from "@/components/ScrollHandler";
 import TelemetryHandler from "@/components/TelemetryHandler";
+import KeepAlive from "@/components/KeepAlive";
 
 export default function RootLayout({
   children,
@@ -71,12 +72,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${outfit.variable} ${firaCode.variable}`}>
       <head>
+        {/* Disable browser scroll restoration before any JS runs */}
+        <script dangerouslySetInnerHTML={{ __html: "history.scrollRestoration='manual';" }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://gitsage-api.up.railway.app" />
       </head>
       <body className="bg-[#020617] text-white selection:bg-sage/30 font-outfit overflow-x-hidden w-full">
         <ScrollHandler />
+        <KeepAlive />
         <AuthProvider>
           <TelemetryHandler />
           {children}

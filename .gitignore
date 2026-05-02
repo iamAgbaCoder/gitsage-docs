@@ -40,3 +40,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 BACKEND_API_SPEC.md
+.claude/

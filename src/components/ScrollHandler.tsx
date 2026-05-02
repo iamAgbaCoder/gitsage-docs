@@ -7,12 +7,12 @@ export default function ScrollHandler() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Disable browser default scroll restoration
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
     }
-    
-    // Jump to top on route change
+  }, []);
+
+  useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
 
